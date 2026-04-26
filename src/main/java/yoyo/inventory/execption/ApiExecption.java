@@ -1,0 +1,14 @@
+package yoyo.inventory.execption;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.http.HttpStatus;
+
+@Getter
+@Setter
+@RequiredArgsConstructor
+public class ApiExecption extends RuntimeException {
+    private final HttpStatus status;
+    private final String message;
+}

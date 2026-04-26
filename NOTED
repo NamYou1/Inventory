@@ -1,0 +1,172 @@
+SUPPLIERS, PURCHASES, PURCHASE ITEMS, STORES, STOCK, PRODUCTS, CATEGORIES, SUBCATEGORIES, UNITS
+
+
+TABLE , GROUP TABLE
+
+CUSTOMER , SALE, SALE ITEMS, PAYMENTS, INVOICE
+
+
+
+AUTH
+    USER (id, username, password, email, role, created_at, updated_at)
+    ROLE (id, name )
+    PERMISSION (id, name )
+    ROLE_PERMISSION (role_id, permission_id)
+    REFRESH_TOKEN (id, user_id, token, expires_at)
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE table_suppliers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(55) NOT NULL,
+    cf1 VARCHAR(255),
+    cf2 VARCHAR(255),
+    phone VARCHAR(20),
+    email VARCHAR(100),
+    address VARCHAR(255)
+);
+
+
+CREATE TABLE table_purchases (
+    id SERIAL PRIMARY KEY,
+    reference VARCHAR(55) NOT NULL,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    note VARCHAR(1000),
+    total NUMERIC(25,4),
+    attachment VARCHAR(255),
+    supplier_id INTEGER,
+    received SMALLINT,
+    created_by INTEGER NOT NULL,
+    store_id INTEGER NOT NULL DEFAULT 1,
+    product_dicount NUMERIC(12,3),
+    order_discount NUMERIC(12,3),
+    total_discount NUMERIC(12,3),
+    delete_flag INTEGER DEFAULT 0,
+    delete_by VARCHAR(50),
+    update_by INTEGER,
+    update_at TIMESTAMP,
+    no INTEGER,
+    supplier VARCHAR(255),
+    purchases_status VARCHAR(20),
+    grand_total NUMERIC(14,4),
+    paid NUMERIC(14,4),
+    payment_status VARCHAR(20)
+);
+
+
+
+
+CREATE TABLE table_purchase_items (
+    id SERIAL PRIMARY KEY,
+    purchase_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    quantity NUMERIC(15,4) NOT NULL,
+    total_discount NUMERIC(13,4),
+    item_discount NUMERIC(13,4),
+    discount VARCHAR(20),
+    unit_quantity NUMERIC(13,4),
+    cost NUMERIC(25,4) NOT NULL,
+    subtotal NUMERIC(25,4) NOT NULL,
+    product_unit INTEGER,
+    tran_unit INTEGER,
+    operation_value NUMERIC(13,4),
+    real_unit_cost NUMERIC(13,4),
+    store_id INTEGER,
+    quantity_balance VARCHAR(255),
+    quantity_received VARCHAR(255)
+);
+
+
+-- Table: table_stores
+CREATE TABLE table_stores (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    code VARCHAR(20) NOT NULL,
+    logo VARCHAR(40),
+    email VARCHAR(100),
+    phone VARCHAR(25) NOT NULL,
+    address1 VARCHAR(200),
+    address2 VARCHAR(200),
+    city VARCHAR(20),
+    state VARCHAR(20),
+    postal_code VARCHAR(8),
+    country VARCHAR(25),
+    currency_code VARCHAR(3),
+    receipt_header TEXT,
+    receipt_footer TEXT
+);
+
+
+
+-- Table: table_stock
+CREATE TABLE table_stock (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    store_id INTEGER NOT NULL,
+    quantity NUMERIC(15,4) DEFAULT 0,
+    price NUMERIC(25,4)
+);
+
+
+
+CREATE TABLE table_products (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    other_code VARCHAR(50),
+    name CHAR(255) NOT NULL,
+    other_name VARCHAR(500),
+    category_id INTEGER NOT NULL DEFAULT 1,
+    price NUMERIC(25,4) NOT NULL,
+    image VARCHAR(255) DEFAULT 'no_image.png',
+    tax VARCHAR(20),
+    cost NUMERIC(25,4),
+    tax_method SMALLINT DEFAULT 1,
+    quantity NUMERIC(15,4) DEFAULT 0,
+    barcode_symbology VARCHAR(20) NOT NULL DEFAULT 'code39',
+    type VARCHAR(20) NOT NULL DEFAULT 'standard',
+    details TEXT,
+    alert_quantity NUMERIC(10,4) DEFAULT 0,
+    default_sale_unit INTEGER,
+    default_purchase_unit INTEGER,
+    section INTEGER,
+    unit INTEGER,
+    printer INTEGER,
+    show_flag SMALLINT DEFAULT 0
+);
+
+
+
+tbl_categories (id , name , description , status );
+
+
+
+
+-- Table: table_subcategory
+CREATE TABLE table_subcategory (
+    id SERIAL PRIMARY KEY,
+    section VARCHAR(255),
+    category_name VARCHAR(255),
+    category_id INTEGER,
+    show_flag SMALLINT DEFAULT 0
+);
+
+
+
+
+-- Table: table_units
+CREATE TABLE table_units (
+    id SERIAL PRIMARY KEY,
+    base_unit INTEGER,
+    code VARCHAR(50),
+    name VARCHAR(50),
+    operation VARCHAR(5),
+    operation_value NUMERIC(10,2),
+    delete_flag SMALLINT DEFAULT 0
+);
