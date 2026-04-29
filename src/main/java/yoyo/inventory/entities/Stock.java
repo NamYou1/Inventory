@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -18,11 +20,13 @@ public class Stock {
     private Long id;
 
     @Column(precision = 15, scale = 4)
-    private BigDecimal quantity = BigDecimal.ZERO;
+    private BigDecimal quantity ;
 
     @Column(precision = 25, scale = 4)
-    private BigDecimal price;
-
+    private BigDecimal costPrice ;
+    private  Integer reorderLevel ;
+    private  Integer alertQuantity ;
+    private LocalDateTime lastRestockDate ;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product tblProduct;

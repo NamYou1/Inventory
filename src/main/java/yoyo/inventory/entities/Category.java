@@ -1,26 +1,32 @@
 package yoyo.inventory.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import yoyo.inventory.entities.status.Status;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "tbl_category")
-public class Category {
+public class Category extends  BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id ;
     @Column(length =  50 , unique = true , nullable = false)
     private  String name ;
     private  String description ;
-    @Column(length = 10  )
-    private  String status = "ACTIVE";
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20 )
+    private Status status;
+
+    @OneToMany(mappedBy = "tblCategory")
+    private  List<Product> tblProduct ;
+
     @OneToMany(mappedBy = "tblCategory")
     private List<SubCategory> tblSubCategory ;
 

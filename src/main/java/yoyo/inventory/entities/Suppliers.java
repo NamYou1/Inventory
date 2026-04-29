@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import yoyo.inventory.entities.status.Status;
+
 @Data
 
 @AllArgsConstructor
@@ -18,9 +20,8 @@ public class Suppliers {
     private String name ;
     @Column(length = 50 , unique = true , nullable = false)
     private String email ;
-    @Column(length = 20 , unique = true )
     private  String phone ;
     private  String address ;
-    @Column(length = 10)
-    private  String status  = "ACTIVE";
+    @Enumerated(EnumType.STRING)
+    private Status status ;
 }

@@ -1,16 +1,18 @@
 package yoyo.inventory.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import yoyo.inventory.entities.status.Status;
 
-@Data
+import java.util.List;
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "tbl_sub_category")
-public class SubCategory {
+public class SubCategory extends  BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private  Long id ;
@@ -18,9 +20,14 @@ public class SubCategory {
     private  String code ;
     @Column(length = 50 , unique = true , nullable = false)
     private  String name ;
-    @Column(length =  10)
-    private  String status = "ACTIVE" ;
-    @JoinColumn(name = "category_id")
-    @ManyToOne( fetch=FetchType.LAZY)
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @OneToMany(mappedBy = "tblSubCategory")
+    private List<Product> tblProduct ;
+
+    @JoinColumn(name = "category_id" , nullable = false)
+    @ManyToOne( fetch=FetchType.LAZY )
     private  Category tblCategory;
 }

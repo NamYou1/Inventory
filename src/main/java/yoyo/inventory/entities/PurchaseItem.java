@@ -16,38 +16,27 @@ public class PurchaseItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "purchase_id", nullable = false)
-    private Purchases purchase;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
     @Column(nullable = false, precision = 15, scale = 4)
-    private BigDecimal quantity;
-
-    private BigDecimal totalDiscount;
-    private BigDecimal itemDiscount;
-    private String discount;
-    private BigDecimal unitQuantity;
+    private Integer quantity;
 
     @Column(nullable = false, precision = 25, scale = 4)
-    private BigDecimal cost;
+    private BigDecimal costPrice;
+
+
+    // total
 
     @Column(nullable = false, precision = 25, scale = 4)
     private BigDecimal subtotal;
 
-    private Long productUnit;
-    private Long tranUnit;
-    private BigDecimal operationValue;
-    private BigDecimal realUnitCost;
-
+    // relationships
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
-    private Stores store;
+    private Stores tblStore;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "purchase_id", nullable = false)
+    private Purchases tblPurchase;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product tblProduct;
 
-    private String quantityBalance;
-    private String quantityReceived;
 }
