@@ -1,51 +1,70 @@
 package yoyo.inventory.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.DecimalMin;
+import lombok.*;
+import yoyo.inventory.entities.status.Status;
 
 import java.math.BigDecimal;
 import java.util.List;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Table(name = "tbl_product")
-public class Product {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Product extends BaseEntity {
+
     @Id
-    private Long id ;
-    @Column(length = 50 , unique = true , nullable = false)
-    private  String code ;
-    @Column(length = 50 , unique = true , nullable = false)
-    private  String name ;
-    @Column(length = 50 , unique = true , nullable = false)
-    private  String otherName ;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private BigDecimal salePrice ;
-    private  BigDecimal costPrice ;
-    private  Integer taxMethod ;
-    private  String barCodeSymbology ;
-    private  String type ;
-    private  String details ;
-    private  Integer alertQuantity ;
-    private  Integer defaultSaleUnit ;
-    private  Integer printer ;
-    private  String image ;
-    @Column(length =  10 )
-    private  String status = "ACTIVE" ;
+    @Column(length = 50, unique = true, nullable = false)
+    private String code;
 
-    @JoinColumn(name = "unit_id")
+    @Column(length = 50, unique = true, nullable = false)
+    private String name;
+
+    @Column(length = 50)
+    private String otherName;
+
+    @DecimalMin("0.0")
+    private BigDecimal salePrice;
+
+    @DecimalMin("0.0")
+    private BigDecimal costPrice;
+
+    private Integer taxMethod;
+
+    private String barCodeSymbology;
+
+    private String type;
+
+    private String details;
+
+    private Integer alertQuantity = 0;
+
+    @Column(length = 255)
+    private String imageUrl;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    private Unit tblUnit ;
+    @JoinColumn(name = "category_id")
+    private  Category tblCategory ;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unit_id")
+    private Unit tblUnit;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subcategory_id")
-    @ManyToOne(fetch =  FetchType.LAZY)
-    private  SubCategory tblSubCategory ;
-    @OneToMany( mappedBy = "tblProduct")
-    @JoinColumn(name = "stock_id")
-    private List<Stock> tblStock ;
+    private SubCategory tblSubCategory;
 
+    @OneToMany(mappedBy = "tblProduct")
+    private  List<PurchaseItem> tblPurchseItem;
 
+    @OneToMany(mappedBy = "tblProduct", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Stock> stocks;
 }

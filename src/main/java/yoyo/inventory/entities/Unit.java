@@ -1,18 +1,18 @@
 package yoyo.inventory.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import yoyo.inventory.entities.status.Status;
 
 import java.util.List;
 
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "tbl_unit")
-public class Unit {
+public class Unit extends  BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id ;
@@ -23,8 +23,8 @@ public class Unit {
     private  String name ;
     private  String operation;
     private  Integer operationValue ;
-    @Column(length = 10)
-    private  String status = "ACTIVE" ;
+    @Enumerated(EnumType.STRING)
+    private Status status ;
     @OneToMany(mappedBy = "tblUnit")
-    private List<Product> tblProduct;
+    private List<Product> products;
 }

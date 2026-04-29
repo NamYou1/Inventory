@@ -1,11 +1,11 @@
 spring:
-  import: optional:file:.env[.properties]
+#  import: optional:file:.env[.properties]?
   application:
     name: Inventory
   datasource:
-    url: ${DB_NAME}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/inventorydb
+    username: postgres
+    password: 123
     driver-class-name: org.postgresql.Driver
   jackson:
     time-zone: Asia/Phnom_Penh
@@ -25,4 +25,6 @@ spring:
 #    access-key: ${R2_ACCESS_KEY}
 #    secret-key: ${R2_SECRET_KEY}
 #    bucket-name: ${R2_BUCKET_NAME}
+server:
+  port: 8081
 #    public-base-url: ${R2_PUBLIC_BASE_URL}

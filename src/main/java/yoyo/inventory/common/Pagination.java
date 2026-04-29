@@ -1,16 +1,14 @@
 package yoyo.inventory.common;
 
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-
-public interface GloblePagination {
+public interface Pagination {
     int DEFAULT_PAGE_LIMIT = 10;
     int DEFAULT_PAGE_NUMBER = 0;
     String PAGE_LIMIT  =   "limit";
     String PAGE_NUMBER    =   "page";
-//    Pageable
+    //    Pageable
     static Pageable getPageable(int pageNumber , int pageSize ){
         if (pageNumber <DEFAULT_PAGE_NUMBER){
             pageNumber = DEFAULT_PAGE_NUMBER;

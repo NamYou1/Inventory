@@ -14,7 +14,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Builder
 public class ApiResponse<T>{
-    private  Boolean succeess ;
+    private  String succeess ;
     private HttpStatus status ;
     private  String message ;
     private  T payload ;

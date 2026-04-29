@@ -5,11 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import yoyo.inventory.entities.status.Status;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class SupplierRequest {
     @NotNull(message = "Supplier name is required")
     private  String name ;
@@ -17,6 +17,6 @@ public class SupplierRequest {
     @NotNull(message = "Supplier phone number is required")
     private  String phone ;
     private  String address ;
-    private  String status  = "ACTIVE";
+    private Status status  = Status.ACTIVE;
 
 }
