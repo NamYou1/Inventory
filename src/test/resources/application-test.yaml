@@ -1,18 +1,21 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/inventorydb
-    username: postgres
-    password: 123
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create-drop
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
-        jdbc:
-          time_zone: Asia/Phnom_Penh
   jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Phnom_Penh
 

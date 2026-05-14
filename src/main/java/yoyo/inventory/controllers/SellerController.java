@@ -15,6 +15,7 @@ import yoyo.inventory.execption.ApiResponse;
 import yoyo.inventory.services.SellerService;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -29,9 +30,9 @@ public class SellerController {
         Page<SellerResponse> sellerResponses = sellerService.getAll(params);
         PageDTO pageDTO =  new PageDTO(sellerResponses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getAll("Seller"))
                 .payload(pageDTO)
                 .build();
@@ -43,9 +44,9 @@ public class SellerController {
     public  ResponseEntity<ApiResponse<SellerResponse>> getById(@PathVariable Long id ){
         SellerResponse sellerResponse = sellerService.getById(id);
         ApiResponse<SellerResponse> response =ApiResponse.<SellerResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getById("Seller",id))
                 .payload(sellerResponse)
                 .build();
@@ -56,9 +57,9 @@ public class SellerController {
     public  ResponseEntity<ApiResponse<SellerResponse>> create( @RequestBody SellerRequest request){
         SellerResponse sellerResponse = sellerService.createSeller(request);
         ApiResponse<SellerResponse> response =ApiResponse.<SellerResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.created("Seller"))
                 .payload(sellerResponse)
                 .build();
@@ -69,9 +70,9 @@ public class SellerController {
     public  ResponseEntity<ApiResponse<SellerResponse>> update(@PathVariable Long id , @RequestBody SellerRequest request){
         SellerResponse sellerResponse = sellerService.updateSeller(id,request);
         ApiResponse<SellerResponse> response =ApiResponse.<SellerResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.updated("Seller",id))
                 .payload(sellerResponse)
                 .build();
@@ -83,9 +84,9 @@ public class SellerController {
         sellerService.deleteSeller(id);
         ApiResponse<Void>
                 response = ApiResponse.<Void>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.deleted("Seller", id))
                 .build();
         return ResponseEntity.ok(response);

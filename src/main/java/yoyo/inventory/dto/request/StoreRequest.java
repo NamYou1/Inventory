@@ -2,6 +2,7 @@ package yoyo.inventory.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import yoyo.inventory.entities.status.Status;
 
 @Data
 public class StoreRequest {
@@ -22,5 +23,5 @@ public class StoreRequest {
     private  String  country ;
     private  String receiptHeader ;
     private  String receiptFooter ;
-    private  String status ;
+    private Status status = Status.ACTIVE;
 }

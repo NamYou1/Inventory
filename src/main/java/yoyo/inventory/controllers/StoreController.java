@@ -15,6 +15,7 @@ import yoyo.inventory.execption.ApiResponse;
 import yoyo.inventory.services.StoreService;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -29,9 +30,9 @@ public class StoreController {
         Page<StoreResponse> responses = storeService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getAll("Stores"))
                 .payload(pageDTO)
                 .build();
@@ -42,9 +43,9 @@ public class StoreController {
     public  ResponseEntity<ApiResponse<StoreResponse>> getById(@PathVariable Long id ){
         StoreResponse exitsId = storeService.getById(id);
         ApiResponse<StoreResponse> response =ApiResponse.<StoreResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getById("Stores",id))
                 .payload(exitsId)
                 .build();
@@ -55,9 +56,9 @@ public class StoreController {
     public  ResponseEntity<ApiResponse<StoreResponse>> create( @RequestBody StoreRequest request){
         StoreResponse category = storeService.create(request);
         ApiResponse<StoreResponse> response =ApiResponse.<StoreResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.created("Stores"))
                 .payload(category)
                 .build();
@@ -68,9 +69,9 @@ public class StoreController {
     public  ResponseEntity<ApiResponse<StoreResponse>> update(@PathVariable Long id , @RequestBody StoreRequest request){
         StoreResponse store = storeService.update(id,request);
         ApiResponse<StoreResponse> response =ApiResponse.<StoreResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.updated("Stores",id))
                 .payload(store)
                 .build();
@@ -82,9 +83,9 @@ public class StoreController {
         storeService.delete(id);
         ApiResponse<Void>
                 response = ApiResponse.<Void>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.deleted("Store", id))
                 .build();
         return ResponseEntity.ok(response);

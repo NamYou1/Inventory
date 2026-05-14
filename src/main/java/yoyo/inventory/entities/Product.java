@@ -67,4 +67,6 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "tblProduct", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Stock> stocks;
+
+
 }

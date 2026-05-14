@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import yoyo.inventory.common.Pagination;
+import yoyo.inventory.common.PageUtil;
 import yoyo.inventory.common.UniqueChecker;
 import yoyo.inventory.dto.request.SubCategoryRequest;
 import yoyo.inventory.dto.response.SubCategoryResponse;
@@ -32,9 +32,8 @@ public class SubCategoryServiceImp implements SubCategoryService {
     @Override
     public Page<SubCategoryResponse> getAll(Map<String, String> params) {
         SubCategoryFilter filter = objectMapper.convertValue(params, SubCategoryFilter.class);
-        int pageNumber  = params.containsKey(Pagination.PAGE_NUMBER) ? Integer.parseInt(params.get(Pagination.PAGE_NUMBER)) : Pagination.DEFAULT_PAGE_NUMBER;
-        int pageSize  = params.containsKey(Pagination.DEFAULT_PAGE_LIMIT) ? Integer.parseInt(params.get(Pagination.DEFAULT_PAGE_LIMIT)) : Pagination.DEFAULT_PAGE_LIMIT;
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageUtil.fromParams(params);
+
         Specification<SubCategory> spec = SubCategorySpec.filterBy(filter);
         return  subCategoryRepository.findAll(spec , pageable).map(subCategoryMapper::toResponse);
 

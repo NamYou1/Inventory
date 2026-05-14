@@ -19,47 +19,50 @@ public class Purchases extends BaseEntity { // if you use audit base
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(length = 55, nullable = false)
+    @Column(length = 100, nullable = false)
     private String reference;
     private LocalDateTime date ;
     @Column(length = 1000)
     private String note;
-
     private BigDecimal total;
-    private String attachment;
-
-    private Short received;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "store_id", nullable = false)
-//    private Stores tblStore;
-
-    private BigDecimal productDiscount;
-    private BigDecimal orderDiscount;
-    private BigDecimal totalDiscount;
     private String no;
+    private BigDecimal totalDiscount;
     private BigDecimal grandTotal;
-    private BigDecimal paid;
 
     // status
     @Enumerated(EnumType.STRING)
     private Status status ;
-
     @Enumerated(EnumType.STRING)
     private PurchaseStatus purchaseStatus ;
-
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
     // relationships
-   @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Stores tblStore;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", nullable = false)
     private  Seller tblSeller;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id")
+    @JoinColumn(name = "supplier_id" , nullable = false)
     private Suppliers tblSuppliers;
-
-    @OneToMany(mappedBy = "tblPurchase")
+    @OneToMany(mappedBy = "tblPurchase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PurchaseItem> tblPurchaseItem ;
+
+//    private String attachment;
+//    private Short received;
+
+
+
+//    private BigDecimal productDiscount;
+//    private BigDecimal orderDiscount;
+//    private BigDecimal totalDiscount;
+
+//    private BigDecimal paid;
+    // status
+
+    // relationships
+
+
 }

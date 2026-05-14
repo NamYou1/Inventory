@@ -15,6 +15,7 @@ import yoyo.inventory.execption.ApiResponse;
 import yoyo.inventory.services.CategoryService;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -30,9 +31,9 @@ public class CategoryController {
         Page<CategoryResponse> responses = categoryService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getAll("Category"))
                 .payload(pageDTO)
                 .build();
@@ -43,9 +44,9 @@ public class CategoryController {
     public  ResponseEntity<ApiResponse<CategoryResponse>> getById(@PathVariable Long id ){
         CategoryResponse exitsId = categoryService.getById(id);
         ApiResponse<CategoryResponse> response =ApiResponse.<CategoryResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getById("Supplier",id))
                 .payload(exitsId)
                 .build();
@@ -56,9 +57,9 @@ public class CategoryController {
     public  ResponseEntity<ApiResponse<CategoryResponse>> create( @RequestBody CategoryRequest request){
         CategoryResponse category = categoryService.createCategory(request);
         ApiResponse<CategoryResponse> response =ApiResponse.<CategoryResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.created("Category"))
                 .payload(category)
                 .build();
@@ -69,9 +70,9 @@ public class CategoryController {
     public  ResponseEntity<ApiResponse<CategoryResponse>> update(@PathVariable Long id , @RequestBody CategoryRequest request){
         CategoryResponse supplier = categoryService.updateCategory(id,request);
         ApiResponse<CategoryResponse> response =ApiResponse.<CategoryResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.updated("Category",id))
                 .payload(supplier)
                 .build();
@@ -83,9 +84,9 @@ public class CategoryController {
         categoryService.deleteCategory(id);
         ApiResponse<Void>
                 response = ApiResponse.<Void>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.deleted("Category", id))
                 .build();
         return ResponseEntity.ok(response);

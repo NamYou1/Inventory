@@ -39,4 +39,6 @@ public class Stores extends  BaseEntity {
     private Status status;
     @OneToMany(mappedBy = "tblStore")
     private List<Stock> tblStock;
+
+
 }

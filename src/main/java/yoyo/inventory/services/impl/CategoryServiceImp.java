@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import yoyo.inventory.common.Pagination;
+import yoyo.inventory.common.PageUtil;
 import yoyo.inventory.common.UniqueChecker;
 import yoyo.inventory.dto.request.CategoryRequest;
 import yoyo.inventory.dto.response.CategoryResponse;
@@ -32,9 +32,8 @@ public class CategoryServiceImp implements CategoryService {
     @Override
     public Page<CategoryResponse> getAll(Map<String, String> params) {
         CategoryFilter filter = objectMapper.convertValue(params, CategoryFilter.class);
-        int pageNumber  = params.containsKey(Pagination.PAGE_NUMBER) ? Integer.parseInt(params.get(Pagination.PAGE_NUMBER)) : Pagination.DEFAULT_PAGE_NUMBER;
-        int pageSize  = params.containsKey(Pagination.DEFAULT_PAGE_LIMIT) ? Integer.parseInt(params.get(Pagination.DEFAULT_PAGE_LIMIT)) :0;
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageUtil.fromParams(params);
+
         Specification<Category> spec = CategorySpec.filterBy(filter);
         return  categoryRepository.findAll(spec , pageable).map(categoryMapper::toResponse);
     }

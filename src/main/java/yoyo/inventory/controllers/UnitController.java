@@ -15,6 +15,7 @@ import yoyo.inventory.execption.ApiResponse;
 import yoyo.inventory.services.UnitService;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -28,9 +29,9 @@ public class UnitController {
         Page<UnitResponse> responses = unitService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getAll("Unit"))
                 .payload(pageDTO)
                 .build();
@@ -41,9 +42,9 @@ public class UnitController {
     public  ResponseEntity<ApiResponse<UnitResponse>> getById(@PathVariable Long id ){
         UnitResponse exitsId = unitService.getById(id);
         ApiResponse<UnitResponse> response =ApiResponse.<UnitResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getById("Unit",id))
                 .payload(exitsId)
                 .build();
@@ -54,9 +55,9 @@ public class UnitController {
     public  ResponseEntity<ApiResponse<UnitResponse>> create( @RequestBody UnitRequest request){
         UnitResponse unitResponse = unitService.create(request);
         ApiResponse<UnitResponse> response =ApiResponse.<UnitResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.created("SubCategory"))
                 .payload(unitResponse)
                 .build();
@@ -67,9 +68,9 @@ public class UnitController {
     public  ResponseEntity<ApiResponse<UnitResponse>> update(@PathVariable Long id , @RequestBody UnitRequest request){
         UnitResponse unitResponse = unitService.update(id,request);
         ApiResponse<UnitResponse> response =ApiResponse.<UnitResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.updated("Unit",id))
                 .payload(unitResponse)
                 .build();
@@ -81,9 +82,9 @@ public class UnitController {
         unitService.delete(id);
         ApiResponse<Void>
                 response = ApiResponse.<Void>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.deleted("Unit", id))
                 .build();
         return ResponseEntity.ok(response);

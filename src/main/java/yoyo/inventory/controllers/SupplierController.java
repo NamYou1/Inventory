@@ -17,6 +17,7 @@ import yoyo.inventory.execption.ApiResponse;
 import yoyo.inventory.services.SupplierService;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -30,9 +31,9 @@ public class SupplierController {
         Page<SupplierResponse> responses = supplierService.getAllSuppliers(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getAll("Supplier"))
                 .payload(pageDTO)
                 .build();
@@ -43,9 +44,9 @@ public class SupplierController {
     public  ResponseEntity<ApiResponse<SupplierResponse>> getById(@PathVariable Long id ){
         SupplierResponse exitsId = supplierService.getById(id);
         ApiResponse<SupplierResponse> response =ApiResponse.<SupplierResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getById("Supplier",id))
                 .payload(exitsId)
                 .build();
@@ -56,9 +57,9 @@ public class SupplierController {
     public  ResponseEntity<ApiResponse<SupplierResponse>> create( @RequestBody SupplierRequest request){
         SupplierResponse supplier = supplierService.createSupplier(request);
         ApiResponse<SupplierResponse> response =ApiResponse.<SupplierResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.created("Seller"))
                 .payload(supplier)
                 .build();
@@ -69,9 +70,9 @@ public class SupplierController {
     public  ResponseEntity<ApiResponse<SupplierResponse>> update(@PathVariable Long id , @RequestBody SupplierRequest request){
         SupplierResponse supplier = supplierService.updateSupplier(id,request);
         ApiResponse<SupplierResponse> response =ApiResponse.<SupplierResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.updated("Seller",id))
                 .payload(supplier)
                 .build();
@@ -83,9 +84,9 @@ public class SupplierController {
         supplierService.deleteSupplier(id);
         ApiResponse<Void>
                 response = ApiResponse.<Void>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.deleted("Seller", id))
                 .build();
         return ResponseEntity.ok(response);

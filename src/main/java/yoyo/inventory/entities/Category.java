@@ -21,6 +21,7 @@ public class Category extends  BaseEntity {
     private  String description ;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 20 )
     private Status status;
 
     @OneToMany(mappedBy = "tblCategory")

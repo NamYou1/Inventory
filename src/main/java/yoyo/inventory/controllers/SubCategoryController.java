@@ -9,14 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
 import yoyo.inventory.constants.ErrorCode;
-import yoyo.inventory.dto.request.CategoryRequest;
 import yoyo.inventory.dto.request.SubCategoryRequest;
-import yoyo.inventory.dto.response.CategoryResponse;
 import yoyo.inventory.dto.response.SubCategoryResponse;
 import yoyo.inventory.execption.ApiResponse;
 import yoyo.inventory.services.SubCategoryService;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -32,9 +31,9 @@ public class SubCategoryController {
         Page<SubCategoryResponse> responses = subCategoryService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getAll("SubCategory"))
                 .payload(pageDTO)
                 .build();
@@ -45,9 +44,9 @@ public class SubCategoryController {
     public  ResponseEntity<ApiResponse<SubCategoryResponse>> getById(@PathVariable Long id ){
         SubCategoryResponse exitsId = subCategoryService.getById(id);
         ApiResponse<SubCategoryResponse> response =ApiResponse.<SubCategoryResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getById("Supplier",id))
                 .payload(exitsId)
                 .build();
@@ -58,9 +57,9 @@ public class SubCategoryController {
     public  ResponseEntity<ApiResponse<SubCategoryResponse>> create( @RequestBody SubCategoryRequest request){
         SubCategoryResponse category = subCategoryService.create(request);
         ApiResponse<SubCategoryResponse> response =ApiResponse.<SubCategoryResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.created("SubCategory"))
                 .payload(category)
                 .build();
@@ -71,9 +70,9 @@ public class SubCategoryController {
     public  ResponseEntity<ApiResponse<SubCategoryResponse>> update(@PathVariable Long id , @RequestBody SubCategoryRequest request){
         SubCategoryResponse subCategoryResponse = subCategoryService.update(id,request);
         ApiResponse<SubCategoryResponse> response =ApiResponse.<SubCategoryResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.updated("SubCategory",id))
                 .payload(subCategoryResponse)
                 .build();
@@ -85,9 +84,9 @@ public class SubCategoryController {
         subCategoryService.delete(id);
         ApiResponse<Void>
                 response = ApiResponse.<Void>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.deleted("SubCategory", id))
                 .build();
         return ResponseEntity.ok(response);

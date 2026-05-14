@@ -27,4 +27,6 @@ public class Seller extends  BaseEntity {
 
     @OneToMany(mappedBy = "tblSeller")
     private List<Purchases> tblPurchase ;
+
+
 }

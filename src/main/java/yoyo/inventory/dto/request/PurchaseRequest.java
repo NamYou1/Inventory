@@ -4,9 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import yoyo.inventory.entities.PurchaseItem;
+import yoyo.inventory.entities.status.PaymentStatus;
+import yoyo.inventory.entities.status.PurchaseStatus;
+import yoyo.inventory.entities.status.Status;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -14,19 +18,14 @@ import java.util.List;
 @NoArgsConstructor
 
 public class PurchaseRequest {
+    private String reference;
+    private String note;
+    private Long supplierId;
+    private Long sellerId;
+    private Long storeId;
+    private  PurchaseStatus purchaseStatus  = PurchaseStatus.ORDERED;
+    private  PaymentStatus paymentStatus= PaymentStatus.PENDING;
     private LocalDateTime date = LocalDateTime.now();
-    private  String no ;
-    private  String reference ;
-    private  String note ;
-    private  String attachment ;
-    private  BigDecimal productDiscount;
-    private  BigDecimal orderDiscount;
-    private  Short received ;
-    private  String status ;
-    private  String purchasesStatus ;
-    private  String paymentStatus ;
-    private  Long supplierId ;
-    private  Long sellerId  ;
-//    private  Long storeId ;
-    private List<PurchaseItem> tblPurchaseItem;
+    private Double orderDiscount;
+    private List<PurchaseItemRequest> items;
 }

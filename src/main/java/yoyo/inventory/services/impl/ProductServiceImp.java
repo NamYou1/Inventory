@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import yoyo.inventory.common.Pagination;
+import yoyo.inventory.common.PageUtil;
 import yoyo.inventory.common.UniqueChecker;
 import yoyo.inventory.dto.request.ProductRequest;
 import yoyo.inventory.dto.response.ProductResponse;
@@ -33,9 +33,8 @@ public class ProductServiceImp  implements ProductService {
     @Override
     public Page<ProductResponse> getAll(Map<String, String> params) {
         ProductFilter filter= objectMapper.convertValue(params , ProductFilter.class);
-        int pageNumber  = params.containsKey(Pagination.PAGE_NUMBER) ? Integer.parseInt(params.get(Pagination.PAGE_NUMBER)):0;
-        int pageSize  = params.containsKey(Pagination.DEFAULT_PAGE_LIMIT) ? Integer.parseInt(params.get(Pagination.DEFAULT_PAGE_LIMIT)) :0;
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageUtil.fromParams(params);
+
         Specification<Product> spec  = ProductSpec.filterBy(filter);
         return  productRepository.findAll(spec , pageable).map(productMapper::toResponse);
     }

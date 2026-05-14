@@ -9,14 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
 import yoyo.inventory.constants.ErrorCode;
-import yoyo.inventory.dto.request.CategoryRequest;
 import yoyo.inventory.dto.request.ProductRequest;
-import yoyo.inventory.dto.response.CategoryResponse;
 import yoyo.inventory.dto.response.ProductResponse;
 import yoyo.inventory.execption.ApiResponse;
 import yoyo.inventory.services.ProductService;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -31,9 +30,9 @@ public class ProductController {
         Page<ProductResponse> responses = productService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getAll("Product"))
                 .payload(pageDTO)
                 .build();
@@ -44,9 +43,9 @@ public class ProductController {
     public  ResponseEntity<ApiResponse<ProductResponse>> getById(@PathVariable Long id ){
         ProductResponse exitsId = productService.getById(id);
         ApiResponse<ProductResponse> response =ApiResponse.<ProductResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.getById("Supplier",id))
                 .payload(exitsId)
                 .build();
@@ -57,9 +56,9 @@ public class ProductController {
     public  ResponseEntity<ApiResponse<ProductResponse>> create( @RequestBody ProductRequest request){
         ProductResponse product = productService.create(request);
         ApiResponse<ProductResponse> response =ApiResponse.<ProductResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.created("Product"))
                 .payload(product)
                 .build();
@@ -70,9 +69,9 @@ public class ProductController {
     public  ResponseEntity<ApiResponse<ProductResponse>> update(@PathVariable Long id , @RequestBody ProductRequest request){
         ProductResponse supplier = productService.update(id,request);
         ApiResponse<ProductResponse> response =ApiResponse.<ProductResponse>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.updated("Product",id))
                 .payload(supplier)
                 .build();
@@ -84,9 +83,9 @@ public class ProductController {
         productService.delete(id);
         ApiResponse<Void>
                 response = ApiResponse.<Void>builder()
-                .succeess(ErrorCode.SUCCESS)
+                .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .message(Message.deleted("Product", id))
                 .build();
         return ResponseEntity.ok(response);

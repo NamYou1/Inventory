@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Service
-public class InvoiceService {
+public  class InvoiceService {
     public String generate(String prefix) {
         return prefix + "-" +
                 LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) +
