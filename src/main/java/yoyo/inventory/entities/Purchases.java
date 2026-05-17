@@ -28,7 +28,6 @@ public class Purchases extends BaseEntity { // if you use audit base
     private String no;
     private BigDecimal totalDiscount;
     private BigDecimal grandTotal;
-
     // status
     @Enumerated(EnumType.STRING)
     private Status status ;
@@ -36,7 +35,6 @@ public class Purchases extends BaseEntity { // if you use audit base
     private PurchaseStatus purchaseStatus ;
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
-
     // relationships
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)

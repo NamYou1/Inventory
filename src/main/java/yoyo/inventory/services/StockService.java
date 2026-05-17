@@ -1,76 +1,51 @@
 package yoyo.inventory.services;
 
+import lombok.extern.java.Log;
+import yoyo.inventory.dto.response.StockResponse;
 import yoyo.inventory.entities.Product;
 import yoyo.inventory.entities.Stock;
 import yoyo.inventory.entities.Stores;
+import yoyo.inventory.enums.AdjustmentType;
+
 
 import java.math.BigDecimal;
-
 public interface StockService {
 
-    // =====================================================
-    // PURCHASE
-    // =====================================================
-
-    void purchaseIn(
-            Stores store,
-            Product product,
-            BigDecimal quantity,
-            BigDecimal costPrice
-    );
-
-    // =====================================================
-    // SALE
-    // =====================================================
-
-    void saleOut(
-            Stores store,
-            Product product,
-            BigDecimal quantity
-    );
-
-    // =====================================================
+    // =========================================
+    // FIND STOCK
+    // =========================================
+    Stock findProductAndStoreById(Long productId  , Long storeId );
+    StockResponse getById(Long id);
+    StockResponse getByProductAndStore(Long productId, Long storeId);
+//    Page<StockResponse> getAll(
+//            StockFilterRequest filter,
+//            Pageable pageable
+//    );
+    // =========================================
+    // STOCK IN
+    // =========================================
+    void increaseStock(Long  productId, Long storeId, BigDecimal quantity, BigDecimal costPrice);
+    // =========================================
+    // STOCK OUT
+    // =========================================
+    void decreaseStock(Long productId, Long storeid, BigDecimal quantity);
+    // =========================================
     // TRANSFER
-    // =====================================================
-
-    void transfer(
-            Stores fromStore,
-            Stores toStore,
-            Product product,
-            BigDecimal quantity
-    );
-
-    // =====================================================
+    // =========================================
+    void transferStock(long productId, Long fromStore, long toStore, BigDecimal quantity);
+    // =========================================
     // ADJUSTMENT
-    // =====================================================
+    // =========================================
+    void adjustStock(Long product, Long store, BigDecimal quantity, AdjustmentType type);
 
-    void adjustment(
-            Stores store,
-            Product product,
-            BigDecimal quantity,
-            boolean increase
-    );
+//    void decreaseStock(Product product, Stores store, BigDecimal quantity);
+//
+//    void transferStock(Long productId, long fromStore, long toStore, BigDecimal quantity);
+//
+//    void adjustStock(Log product, Long store, BigDecimal quantity, AdjustmentType type);
 
-    // =====================================================
-    // STOCK QUERY
-    // =====================================================
-
-    Stock getStock(
-            Stores store,
-            Product product
-    );
-
-    Stock getOrCreateStock(
-            Stores store,
-            Product product
-    );
-
-    // =====================================================
+    // =========================================
     // VALIDATION
-    // =====================================================
-
-    void validateStock(
-            Stock stock,
-            BigDecimal quantity
-    );
+    // =========================================
+    void validateStock(Stock stock, BigDecimal quantity);
 }

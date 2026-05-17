@@ -27,4 +27,6 @@ public class Unit extends  BaseEntity{
     private Status status ;
     @OneToMany(mappedBy = "tblUnit")
     private List<Product> products;
+    @OneToMany(mappedBy = "tblUnit")
+    private  List<PurchaseItem> purchaseItems ;
 }

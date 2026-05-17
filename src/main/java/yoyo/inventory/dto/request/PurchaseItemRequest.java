@@ -5,13 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PurchaseItemRequest {
     @NotNull(message = "Product ID cannot be null")
     private Long productId;
-    private Double quantity;
-    private Double costPrice;
+    private  long unitId ;
+    private BigDecimal quantity;
+//    private BigDecimal costPrice;
     private Double totalDiscount;
 }

@@ -1,23 +1,30 @@
 package yoyo.inventory.services.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.servers.Server;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import yoyo.inventory.common.InvoiceService;
+import yoyo.inventory.common.PageUtil;
 import yoyo.inventory.dto.request.TransferItemRequest;
 import yoyo.inventory.dto.request.TransferRequest;
 import yoyo.inventory.dto.response.TransferResponse;
 import yoyo.inventory.entities.*;
 import yoyo.inventory.entities.status.TransferStatus;
+import yoyo.inventory.execption.InsufficientStockException;
+import yoyo.inventory.execption.ResourceNotFoundExecption;
 import yoyo.inventory.mappers.TransferMapper;
-import yoyo.inventory.repository.StockRepository;
 import yoyo.inventory.repository.TransferRepository;
 import yoyo.inventory.services.ProductService;
 import yoyo.inventory.services.StockService;
 import yoyo.inventory.services.StoreService;
 import yoyo.inventory.services.TransferService;
+import yoyo.inventory.specification.transfer.TransferFilter;
+import yoyo.inventory.specification.transfer.TransferSpec;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,18 +44,23 @@ public class TransferServiceImpl implements TransferService {
     private final ProductService productService;
     private  final StoreService storeService ;
     private  final InvoiceService invoiceService ;
+    private final ObjectMapper objectMapper;
+
     // CREATE
     @Override
     public TransferResponse create(TransferRequest request) {
 
         Transfer transfer = transferMapper.toEntity(request);
         transfer.setStatus(TransferStatus.PENDING);
-        transfer.setTransferNo(invoiceService.generate("TRF"));
+        transfer.setTransferNo(invoiceService.generate("TRF"  ,transfer.getId()));
         transfer.setCreatedAt(LocalDateTime.now());
         BigDecimal total = BigDecimal.ZERO ;
         BigDecimal grandTotal = BigDecimal.ZERO;
         Stores fromStoreId = storeService.findById(request.getFromStoreId());
         Stores toStoreId = storeService.findById(request.getToStoreId());
+        if(fromStoreId == toStoreId){
+            throw new InsufficientStockException("From and To store cannot be the same") ;
+        }
         List<TransferItem> items = new ArrayList<>();
         for (TransferItemRequest itemRequest : request.getItems()){
             Product product = productService.findById(itemRequest.getProductId());
@@ -58,7 +70,7 @@ public class TransferServiceImpl implements TransferService {
             item.setSubtotal(item.getQuantity().multiply(item.getUnitPrice()));
             items.add(item);
             total = total.add(item.getSubtotal());
-            stockService.transfer(fromStoreId,toStoreId, product, item.getQuantity());
+            stockService.transferStock(itemRequest.getProductId(), request.getFromStoreId(), request.getToStoreId(),  item.getQuantity());
         }
         grandTotal = total.subtract(request.getShipping());
         transfer.setTotal(total);
@@ -78,11 +90,12 @@ public class TransferServiceImpl implements TransferService {
     @Override
     @Transactional
     public Page<TransferResponse> getAll(Map<String, String> params) {
-        return  null;
-//        return transferRepository.findAll(
-//                TransferSpecification.filter(filter),
-//                pageable
-//        ).map(transferMapper::toResponse);
+        TransferFilter filter = objectMapper.convertValue(params, TransferFilter.class);
+        Pageable pageable = PageUtil.fromParams(params);
+        Specification<Transfer> spec = TransferSpec.filterBy(filter);
+        return  transferRepository.findAll(spec, pageable).map(transferMapper::toResponse);
+
+
     }
 
     // UPDATE
@@ -120,44 +133,18 @@ public class TransferServiceImpl implements TransferService {
 
     @Override
     public TransferResponse complete(Long id, String updatedBy) {
-        return null;
-    }
+        Transfer transfer = find(id);
 
-    // COMPLETE (STOCK LOGIC)
-//    @Override
-//    public TransferResponse complete(Long id, String updatedBy) {
-//
-//        Transfer transfer = find(id);
-//
-//        if (transfer.getStatus() != TransferStatus.APPROVED) {
-//            throw new RuntimeException("Only APPROVED can be completed");
-//        }
-//
-//        for (TransferItem item : transfer.getItems()) {
-//
-//            Stock from = stockRepository.findById(item.getFromStockId())
-//                    .orElseThrow(() -> new RuntimeException("From stock not found"));
-//
-//            Stock to = stockRepository.findById(item.getToStockId())
-//                    .orElseThrow(() -> new RuntimeException("To stock not found"));
-//
-//            if (from.getQuantity() < item.getQuantity()) {
-//                throw new RuntimeException("Insufficient stock");
-//            }
-//
-//            from.setQuantity(from.getQuantity() - item.getQuantity());
-//            to.setQuantity(to.getQuantity() + item.getQuantity());
-//
-//            stockRepository.save(from);
-//            stockRepository.save(to);
-//        }
-//
-//        transfer.setStatus(TransferStatus.COMPLETED);
-//        transfer.setCompletedAt(LocalDateTime.now());
-//        transfer.setUpdatedBy(updatedBy);
-//
-//        return transferMapper.toResponse(transferRepository.save(transfer));
-//    }
+        if (transfer.getStatus() != TransferStatus.APPROVED) {
+            throw new RuntimeException("Only APPROVED can be completed");
+        }
+
+        transfer.setStatus(TransferStatus.COMPLETED);
+        transfer.setUpdatedAt(LocalDateTime.now());
+        transfer.setUpdatedBy(updatedBy);
+
+        return transferMapper.toResponse(transferRepository.save(transfer));
+    }
 
     // CANCEL
     @Override

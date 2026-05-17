@@ -8,14 +8,11 @@ import yoyo.inventory.dto.response.PurchaseItemResponse;
 import yoyo.inventory.dto.response.PurchaseResponse;
 import yoyo.inventory.entities.PurchaseItem;
 import yoyo.inventory.entities.Purchases;
-import yoyo.inventory.services.ProductService;
-import yoyo.inventory.services.SellerService;
-import yoyo.inventory.services.StoreService;
-import yoyo.inventory.services.SupplierService;
+import yoyo.inventory.services.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring" , uses = {SupplierService.class , SellerService.class , ProductService.class , StoreService.class})
+@Mapper(componentModel = "spring" , uses = {SupplierService.class , SellerService.class , ProductService.class , StoreService.class , UnitService.class})
 public interface PurchaseMapper {
 
 //    PurchaseResponse toResponsePurchase (Purchases purchases );
@@ -30,6 +27,8 @@ public interface PurchaseMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tblProduct", source = "productId")
+    @Mapping(target = "tblUnit", source = "unitId")
+//    @Mapping(target = "")
     PurchaseItem toItemEntity(PurchaseItemRequest request);
 
     @Mapping(target = "supplierId", source = "tblSuppliers.id")

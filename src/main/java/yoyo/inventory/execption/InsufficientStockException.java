@@ -8,5 +8,9 @@ public class InsufficientStockException extends ApiExecption {
                 String.format("Insufficient stock for '%s': required %d, available %d",
                         productName, required, available));
     }
+    public InsufficientStockException(String productName) {
+        super(HttpStatus.UNPROCESSABLE_ENTITY,
+                String.format("Insufficient stock for '%s'" , productName));
+    }
 }
 

@@ -1,9 +1,14 @@
 package yoyo.inventory.controllers;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import yoyo.inventory.common.Message;
+import yoyo.inventory.common.PageDTO;
+import yoyo.inventory.constants.ErrorCode;
 import yoyo.inventory.dto.request.TransferRequest;
 import yoyo.inventory.dto.response.TransferResponse;
 import yoyo.inventory.execption.ApiResponse;
@@ -11,29 +16,41 @@ import yoyo.inventory.services.TransferService;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/transfers")
 @RequiredArgsConstructor
+@Tag(name = "Transfer Management", description = "APIs for managing inventory transfers between stores")
 public class TransferController {
 
     private final TransferService transferService;
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageDTO>>getAll(@RequestParam Map<String , String> params){
+        Page<TransferResponse> responses = transferService.getAll(params);
+        PageDTO pageDTO =  new PageDTO(responses);
+        ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
+                .success(ErrorCode.SUCCESS)
+                .status(HttpStatus.OK)
+                .timestamp(LocalDateTime.now())
+                .message(Message.getAll("Transfer"))
+                .payload(pageDTO)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
     // CREATE
     @PostMapping
-    public ResponseEntity<ApiResponse<TransferResponse>> create(
-            @RequestBody TransferRequest request
-//            Principal principal
-    ) {
-        TransferResponse response = transferService.create(request
-//                principal.getName()
-        );
+    public ResponseEntity<ApiResponse<TransferResponse>> create(@RequestBody TransferRequest request) {
+        TransferResponse response = transferService.create(request);
 
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
-                        .success("true")
+                        .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.CREATED)
-                        .message("Transfer created successfully")
+                        .message(Message.created("Transfer"))
                         .payload(response)
                         .timestamp(LocalDateTime.now())
                         .build()
@@ -45,37 +62,16 @@ public class TransferController {
     public ResponseEntity<ApiResponse<TransferResponse>> getById(@PathVariable Long id) {
 
         TransferResponse response = transferService.getById(id);
-
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
-                        .success("true")
+                        .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.OK)
-                        .message("Transfer fetched successfully")
+                        .message(Message.created("Transfer"))
                         .payload(response)
                         .timestamp(LocalDateTime.now())
                         .build()
         );
     }
-
-    // LIST
-//    @GetMapping
-//    public ResponseEntity<ApiResponse<Page<TransferResponse>>> getAll(
-//            TransferFilterRequest filter,
-//            Pageable pageable
-//    ) {
-//
-//        Page<TransferResponse> response = transferService.getAll(filter, pageable);
-//
-//        return ResponseEntity.ok(
-//                ApiResponse.<Page<TransferResponse>>builder()
-//                        .success("true")
-//                        .status(HttpStatus.OK)
-//                        .message("Transfers fetched successfully")
-//                        .payload(response)
-//                        .timestamp(LocalDateTime.now())
-//                        .build()
-//        );
-//    }
 
     // UPDATE
     @PutMapping("/{id}")
@@ -90,9 +86,9 @@ public class TransferController {
 
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
-                        .success("true")
+                        .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.OK)
-                        .message("Transfer updated successfully")
+                        .message(Message.updated("Transfer" , id))
                         .payload(response)
                         .timestamp(LocalDateTime.now())
                         .build()
@@ -108,9 +104,9 @@ public class TransferController {
 
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
-                        .success("true")
+                        .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.OK)
-                        .message("Transfer approved")
+                        .message(Message.updated("Transfer" , id))
                         .payload(transferService.approve(id, principal.getName()))
                         .timestamp(LocalDateTime.now())
                         .build()
@@ -126,9 +122,9 @@ public class TransferController {
 
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
-                        .success("true")
+                        .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.OK)
-                        .message("Transfer completed")
+                        .message(Message.updated("Transfer"  , id))
                         .payload(transferService.complete(id, principal.getName()))
                         .timestamp(LocalDateTime.now())
                         .build()
@@ -144,9 +140,9 @@ public class TransferController {
 
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
-                        .success("true")
+                        .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.OK)
-                        .message("Transfer cancelled")
+                        .message(Message.updated("Transfer"  , id))
                         .payload(transferService.cancel(id, principal.getName()))
                         .timestamp(LocalDateTime.now())
                         .build()
@@ -164,9 +160,9 @@ public class TransferController {
 
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()
-                        .success("true")
+                        .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.OK)
-                        .message("Transfer deleted")
+                        .message(Message.deleted("Transfer" , id))
                         .timestamp(LocalDateTime.now())
                         .build()
         );

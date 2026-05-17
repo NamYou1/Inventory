@@ -1,0 +1,11 @@
+package yoyo.inventory.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+import yoyo.inventory.entities.StockAdjustment;
+
+@Repository
+public interface AdjustmentRepository
+        extends JpaRepository<StockAdjustment, Long> , JpaSpecificationExecutor<StockAdjustment> {
+}
