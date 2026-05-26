@@ -9,6 +9,9 @@ import yoyo.inventory.enums.AdjustmentType;
 
 
 import java.math.BigDecimal;
+import org.springframework.data.domain.Page;
+import java.util.Map;
+
 public interface StockService {
 
     // =========================================
@@ -17,10 +20,14 @@ public interface StockService {
     Stock findProductAndStoreById(Long productId  , Long storeId );
     StockResponse getById(Long id);
     StockResponse getByProductAndStore(Long productId, Long storeId);
-//    Page<StockResponse> getAll(
-//            StockFilterRequest filter,
-//            Pageable pageable
-//    );
+    Page<StockResponse> getAll(Map<String, String> params);
+    Page<StockResponse> getByStore(Long storeId, Map<String,String> params);
+void reverseStock(
+        Long productId,
+        Long fromStoreId,
+        Long toStoreId,
+        BigDecimal quantity
+);
     // =========================================
     // STOCK IN
     // =========================================
@@ -38,14 +45,11 @@ public interface StockService {
     // =========================================
     void adjustStock(Long product, Long store, BigDecimal quantity, AdjustmentType type);
 
-//    void decreaseStock(Product product, Stores store, BigDecimal quantity);
-//
-//    void transferStock(Long productId, long fromStore, long toStore, BigDecimal quantity);
-//
-//    void adjustStock(Log product, Long store, BigDecimal quantity, AdjustmentType type);
 
     // =========================================
     // VALIDATION
     // =========================================
     void validateStock(Stock stock, BigDecimal quantity);
+
+//    Stock findStock(long productId, Long storeId);///
 }

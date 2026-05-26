@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
@@ -15,6 +16,7 @@ import yoyo.inventory.enums.AdjustmentStatus;
 import yoyo.inventory.execption.ApiResponse;
 import yoyo.inventory.services.AdjustmentService;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -26,18 +28,20 @@ public class AdjustmentController {
     private final AdjustmentService adjustmentService;
 
     @PostMapping
-    public ApiResponse<AdjustmentResponse> create(@RequestBody AdjustmentRequest request) {
+    @PreAuthorize("hasAuthority('adjustment:create')")
+    public ApiResponse<AdjustmentResponse> create(@RequestBody AdjustmentRequest request, Principal principal) {
 
         return ApiResponse.<AdjustmentResponse>builder()
                 .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
                 .timestamp(LocalDateTime.now())
                 .message(Message.created("Adjustment"))
-                .payload(adjustmentService.create(request, "admin"))
+                .payload(adjustmentService.create(request, principal != null ? principal.getName() : "system"))
                 .build();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('adjustment:read')")
     public ApiResponse<AdjustmentResponse> getById(@PathVariable Long id) {
         return ApiResponse.<AdjustmentResponse>builder()
                 .success(ErrorCode.SUCCESS)
@@ -49,6 +53,7 @@ public class AdjustmentController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('adjustment:read')")
     public ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String, String> params) {
         Page<AdjustmentResponse> responses = adjustmentService.getAll(params);
         PageDTO pageDTO = new PageDTO(responses);
@@ -63,8 +68,9 @@ public class AdjustmentController {
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<ApiResponse<AdjustmentResponse>> updateStatus(@PathVariable Long id, @RequestParam AdjustmentStatus status) {
-       AdjustmentResponse adjustmentResponse = adjustmentService.updateStatus(id, status, "admin");
+    @PreAuthorize("hasAuthority('adjustment:approve')")
+    public ResponseEntity<ApiResponse<AdjustmentResponse>> updateStatus(@PathVariable Long id, @RequestParam AdjustmentStatus status, Principal principal) {
+       AdjustmentResponse adjustmentResponse = adjustmentService.updateStatus(id, status, principal != null ? principal.getName() : "system");
        ApiResponse<AdjustmentResponse> response = ApiResponse.<AdjustmentResponse>builder()
                .success(ErrorCode.SUCCESS)
                .status(HttpStatus.OK)
@@ -76,6 +82,7 @@ public class AdjustmentController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('adjustment:delete')")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         adjustmentService.delete(id);
         return ApiResponse.<Void>builder()

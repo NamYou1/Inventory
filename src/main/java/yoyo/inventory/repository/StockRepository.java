@@ -1,5 +1,7 @@
 package yoyo.inventory.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import yoyo.inventory.entities.Stock;
@@ -13,6 +15,5 @@ public interface StockRepository extends JpaRepository<Stock , Long> {
     List<Stock> findLowStockProducts();
 
     Optional<Stock> findByTblProductIdAndTblStoreId(Long productId, Long storeId);
-//    Optional<Stock> findByProductIdAndStoreId(Long productId, Long storeId);
-
+    Page<Stock> findByTblStoreId(Long storeId, Pageable pageable);
 }

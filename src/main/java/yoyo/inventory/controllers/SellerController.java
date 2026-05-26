@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
@@ -26,7 +27,8 @@ public class SellerController {
     private  final SellerService sellerService ;
 
     @GetMapping
-    private ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
+    @PreAuthorize("hasAuthority('seller:read')")
+        public ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
         Page<SellerResponse> sellerResponses = sellerService.getAll(params);
         PageDTO pageDTO =  new PageDTO(sellerResponses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
@@ -40,7 +42,7 @@ public class SellerController {
     }
 
     @GetMapping("/{id}")
-
+    @PreAuthorize("hasAuthority('seller:read')")
     public  ResponseEntity<ApiResponse<SellerResponse>> getById(@PathVariable Long id ){
         SellerResponse sellerResponse = sellerService.getById(id);
         ApiResponse<SellerResponse> response =ApiResponse.<SellerResponse>builder()
@@ -54,6 +56,7 @@ public class SellerController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('seller:create')")
     public  ResponseEntity<ApiResponse<SellerResponse>> create( @RequestBody SellerRequest request){
         SellerResponse sellerResponse = sellerService.createSeller(request);
         ApiResponse<SellerResponse> response =ApiResponse.<SellerResponse>builder()
@@ -67,6 +70,7 @@ public class SellerController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('seller:update')")
     public  ResponseEntity<ApiResponse<SellerResponse>> update(@PathVariable Long id , @RequestBody SellerRequest request){
         SellerResponse sellerResponse = sellerService.updateSeller(id,request);
         ApiResponse<SellerResponse> response =ApiResponse.<SellerResponse>builder()
@@ -80,6 +84,7 @@ public class SellerController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('seller:delete')")
     public ResponseEntity<ApiResponse<Void>> deleteSeller(@PathVariable Long id) {
         sellerService.deleteSeller(id);
         ApiResponse<Void>
@@ -95,3 +100,5 @@ public class SellerController {
 
 
 }
+
+

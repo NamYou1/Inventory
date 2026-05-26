@@ -4,8 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;import org.springframework.security.access.prepost.PreAuthorize;import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
 import yoyo.inventory.constants.ErrorCode;
@@ -26,7 +25,8 @@ public class ProductController {
     private  final ProductService productService ;
 
     @GetMapping
-    private ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
+    @PreAuthorize("hasAuthority('product:read')")
+        public ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
         Page<ProductResponse> responses = productService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
@@ -40,6 +40,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('product:read')")
     public  ResponseEntity<ApiResponse<ProductResponse>> getById(@PathVariable Long id ){
         ProductResponse exitsId = productService.getById(id);
         ApiResponse<ProductResponse> response =ApiResponse.<ProductResponse>builder()
@@ -53,6 +54,7 @@ public class ProductController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('product:create')")
     public  ResponseEntity<ApiResponse<ProductResponse>> create( @RequestBody ProductRequest request){
         ProductResponse product = productService.create(request);
         ApiResponse<ProductResponse> response =ApiResponse.<ProductResponse>builder()
@@ -66,6 +68,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('product:update')")
     public  ResponseEntity<ApiResponse<ProductResponse>> update(@PathVariable Long id , @RequestBody ProductRequest request){
         ProductResponse supplier = productService.update(id,request);
         ApiResponse<ProductResponse> response =ApiResponse.<ProductResponse>builder()
@@ -79,6 +82,7 @@ public class ProductController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('product:delete')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         productService.delete(id);
         ApiResponse<Void>
@@ -91,3 +95,5 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 }
+
+

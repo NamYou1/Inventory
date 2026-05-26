@@ -11,7 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tbl_sub_category")
+@Table(name = "tbl_sub_category", indexes = {
+        @Index(name = "idx_sub_category_code", columnList = "code"),
+        @Index(name = "idx_sub_category_name", columnList = "name"),
+        @Index(name = "idx_sub_category_status", columnList = "status"),
+        @Index(name = "idx_sub_category_category", columnList = "category_id")
+})
 public class SubCategory extends  BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

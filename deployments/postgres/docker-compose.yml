@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  postgres-bbu-service-local:
+    image: postgres:17
+    container_name: postgres-bbu-service-local
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: db_inventory
+    ports:
+      - "26030:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bbu-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  bbu-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -10,7 +10,7 @@ import java.util.Map;
 public interface SellerService {
    Page<SellerResponse> getAll(Map<String , String> params);
    SellerResponse getById(Long id);
-   Seller findByid(Long id );
+   Seller findBid(Long id );
    SellerResponse createSeller (SellerRequest request);
    SellerResponse updateSeller(Long id , SellerRequest request);
    void deleteSeller(Long id);

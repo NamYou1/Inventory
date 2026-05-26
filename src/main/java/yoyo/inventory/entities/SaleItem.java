@@ -6,7 +6,10 @@ import yoyo.inventory.enums.SaleStatus;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "sale_items")
+@Table(name = "sale_items", indexes = {
+        @Index(name = "idx_sale_item_sale", columnList = "sale_id"),
+        @Index(name = "idx_sale_item_product", columnList = "product_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor

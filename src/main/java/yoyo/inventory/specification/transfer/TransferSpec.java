@@ -13,7 +13,7 @@ public class TransferSpec {
             List<Predicate> predicates = new ArrayList<>();
             
             // Filter out soft deleted records
-            predicates.add(cb.equal(root.get("isDeleted"), false));
+            predicates.add(cb.equal(root.get("isActive"), "ACTIVE"));
 
             if (filter.getTransferNo() != null && !filter.getTransferNo().isEmpty()) {
                 predicates.add(cb.like(root.get("transferNo"), "%" + filter.getTransferNo() + "%"));

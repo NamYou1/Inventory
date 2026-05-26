@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
@@ -26,7 +27,8 @@ public class StoreController {
     private  final StoreService storeService ;
 
     @GetMapping
-    private ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
+    @PreAuthorize("hasAuthority('store:read')")
+        public ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
         Page<StoreResponse> responses = storeService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
@@ -40,6 +42,7 @@ public class StoreController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('store:read')")
     public  ResponseEntity<ApiResponse<StoreResponse>> getById(@PathVariable Long id ){
         StoreResponse exitsId = storeService.getById(id);
         ApiResponse<StoreResponse> response =ApiResponse.<StoreResponse>builder()
@@ -53,6 +56,7 @@ public class StoreController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('store:create')")
     public  ResponseEntity<ApiResponse<StoreResponse>> create( @RequestBody StoreRequest request){
         StoreResponse category = storeService.create(request);
         ApiResponse<StoreResponse> response =ApiResponse.<StoreResponse>builder()
@@ -66,6 +70,7 @@ public class StoreController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('store:update')")
     public  ResponseEntity<ApiResponse<StoreResponse>> update(@PathVariable Long id , @RequestBody StoreRequest request){
         StoreResponse store = storeService.update(id,request);
         ApiResponse<StoreResponse> response =ApiResponse.<StoreResponse>builder()
@@ -79,6 +84,7 @@ public class StoreController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('store:delete')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         storeService.delete(id);
         ApiResponse<Void>
@@ -91,3 +97,5 @@ public class StoreController {
         return ResponseEntity.ok(response);
     }
 }
+
+

@@ -1,5 +1,6 @@
 package yoyo.inventory.services;
 
+import yoyo.inventory.dto.response.TransactionSummaryReportResponse;
 import yoyo.inventory.entities.Transaction;
 import yoyo.inventory.enums.SaleStatus;
 import yoyo.inventory.enums.TransactionType;
@@ -31,4 +32,6 @@ public interface TransactionService {
 
     // សម្រាប់ទាញយក Report តាមប្រភេទជាក់លាក់ (ឧ. ចង់បានតែ Report លក់ ឬ ទិញ)
     List<Transaction> getReportsByType(TransactionType type);
+
+    TransactionSummaryReportResponse getSummaryReport(String period);
 }

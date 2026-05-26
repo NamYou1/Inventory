@@ -8,16 +8,13 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class TransferItemResponse {
-
     private Long id;
-    private Integer productId;
+    private Long productId;
     private BigDecimal quantity;
     private BigDecimal unitPrice;
-    private BigDecimal cost;
+    private BigDecimal costPrice;
     private BigDecimal subtotal;
-    private Integer productUnitId;
+    private Long unitId;
     private BigDecimal unitQuantity;
-    private Integer transferUnitId;
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
@@ -27,6 +28,7 @@ public class TransferController {
     private final TransferService transferService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('transfer:read')")
     public ResponseEntity<ApiResponse<PageDTO>>getAll(@RequestParam Map<String , String> params){
         Page<TransferResponse> responses = transferService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
@@ -43,6 +45,7 @@ public class TransferController {
 
     // CREATE
     @PostMapping
+    @PreAuthorize("hasAuthority('transfer:create')")
     public ResponseEntity<ApiResponse<TransferResponse>> create(@RequestBody TransferRequest request) {
         TransferResponse response = transferService.create(request);
 
@@ -59,6 +62,7 @@ public class TransferController {
 
     // GET BY ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('transfer:read')")
     public ResponseEntity<ApiResponse<TransferResponse>> getById(@PathVariable Long id) {
 
         TransferResponse response = transferService.getById(id);
@@ -75,15 +79,9 @@ public class TransferController {
 
     // UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<TransferResponse>> update(
-            @PathVariable Long id,
-            @RequestBody TransferRequest request,
-            Principal principal
-    ) {
-
-        TransferResponse response =
-                transferService.update(id, request, principal.getName());
-
+    @PreAuthorize("hasAuthority('transfer:update')")
+    public ResponseEntity<ApiResponse<TransferResponse>> update(@PathVariable Long id, @RequestBody TransferRequest request, Principal principal) {
+        TransferResponse response = transferService.update(id, request, principal != null ? principal.getName() : "system");
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
                         .success(ErrorCode.SUCCESS)
@@ -97,17 +95,15 @@ public class TransferController {
 
     // APPROVE
     @PatchMapping("/{id}/approve")
-    public ResponseEntity<ApiResponse<TransferResponse>> approve(
-            @PathVariable Long id,
-            Principal principal
-    ) {
+    @PreAuthorize("hasAuthority('transfer:approve')")
+    public ResponseEntity<ApiResponse<TransferResponse>> approve(@PathVariable Long id, Principal principal) {
 
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
                         .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.OK)
                         .message(Message.updated("Transfer" , id))
-                        .payload(transferService.approve(id, principal.getName()))
+                        .payload(transferService.approve(id, principal != null ? principal.getName() : "system"))
                         .timestamp(LocalDateTime.now())
                         .build()
         );
@@ -115,17 +111,14 @@ public class TransferController {
 
     // COMPLETE
     @PatchMapping("/{id}/complete")
-    public ResponseEntity<ApiResponse<TransferResponse>> complete(
-            @PathVariable Long id,
-            Principal principal
-    ) {
-
+    @PreAuthorize("hasAuthority('transfer:approve')")
+    public ResponseEntity<ApiResponse<TransferResponse>> complete(@PathVariable Long id, Principal principal) {
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
                         .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.OK)
                         .message(Message.updated("Transfer"  , id))
-                        .payload(transferService.complete(id, principal.getName()))
+                        .payload(transferService.complete(id, principal != null ? principal.getName() : "system"))
                         .timestamp(LocalDateTime.now())
                         .build()
         );
@@ -133,31 +126,23 @@ public class TransferController {
 
     // CANCEL
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<ApiResponse<TransferResponse>> cancel(
-            @PathVariable Long id,
-            Principal principal
-    ) {
-
+    @PreAuthorize("hasAuthority('transfer:update')")
+    public ResponseEntity<ApiResponse<TransferResponse>> cancel(@PathVariable Long id, Principal principal) {
         return ResponseEntity.ok(
                 ApiResponse.<TransferResponse>builder()
                         .success(ErrorCode.SUCCESS)
                         .status(HttpStatus.OK)
                         .message(Message.updated("Transfer"  , id))
-                        .payload(transferService.cancel(id, principal.getName()))
+                        .payload(transferService.cancel(id, principal != null ? principal.getName() : "system"))
                         .timestamp(LocalDateTime.now())
                         .build()
         );
     }
-
     // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(
-            @PathVariable Long id,
-            Principal principal
-    ) {
-
-        transferService.delete(id, principal.getName());
-
+    @PreAuthorize("hasAuthority('transfer:delete')")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id, Principal principal) {
+        transferService.delete(id, principal != null ? principal.getName() : "system");
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()
                         .success(ErrorCode.SUCCESS)

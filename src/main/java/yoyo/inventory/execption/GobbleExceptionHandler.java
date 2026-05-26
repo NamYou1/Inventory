@@ -3,9 +3,11 @@ package yoyo.inventory.execption;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import yoyo.inventory.execption.CloudinaryUploadException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -13,12 +15,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class GbobleExecptionHandler {
+public class GobbleExceptionHandler {
     // check api response
-    @ExceptionHandler(value =  ApiExecption.class)
-    public ResponseEntity<?> handleApiExecption(ApiExecption e){
+    @ExceptionHandler(value =  ApiException.class)
+    public ResponseEntity<?> handleApiException(ApiException e){
         ErrorResponse errorResponse = new ErrorResponse(e.getStatus() , e.getMessage());
         return  ResponseEntity.status(e.getStatus()).body(errorResponse);
+    }
+
+    @ExceptionHandler(value = CloudinaryUploadException.class)
+    public ResponseEntity<ErrorResponse> handleCloudinaryUploadException(CloudinaryUploadException e){
+        ErrorResponse errorResponse = new ErrorResponse(e.getStatus(), e.getMessage());
+        return ResponseEntity.status(e.getStatus()).body(errorResponse);
     }
 
     // validation method or field not null
@@ -45,6 +53,13 @@ public class GbobleExecptionHandler {
     public ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         String msg = "Cannot delete or modify this resource because it is still referenced by other data.";
         return buildErrorResponse(HttpStatus.CONFLICT, msg);
+    }
+
+    // Access Denied / Forbidden Exception (Spring Security)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        String msg = "You do not have permission to access this resource.";
+        return buildErrorResponse(HttpStatus.FORBIDDEN, msg);
     }
     private ResponseEntity<Object> buildErrorResponse(HttpStatus status, String message) {
         Map<String, Object> body = new LinkedHashMap<>();

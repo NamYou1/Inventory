@@ -12,7 +12,7 @@ import yoyo.inventory.services.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring" , uses = {SupplierService.class , SellerService.class , ProductService.class , StoreService.class , UnitService.class})
+@Mapper(componentModel = "spring", uses = {SupplierService.class, SellerService.class, ProductService.class, StoreService.class, UnitService.class})
 public interface PurchaseMapper {
 
 //    PurchaseResponse toResponsePurchase (Purchases purchases );
@@ -38,12 +38,15 @@ public interface PurchaseMapper {
     @Mapping(target = "sellerId", source = "tblSeller.id")
     @Mapping(target = "sellerName", source = "tblSeller.name")
 
+    @Mapping(target = "purchasesStatus", expression = "java(entity.getPurchaseStatus() != null ? entity.getPurchaseStatus().name() : null)")
+    @Mapping(target = "items", source = "tblPurchaseItem")
     PurchaseResponse toResponsePurchase(Purchases entity);
 
     List<PurchaseItem> toListEntityItem(List<PurchaseItemRequest> items);
-//    @Mapping(target = "productName", source = "tblProduct.name")
-//    @Mapping(target = "productCode", source = "tblProduct.code")
-////    @Mapping(target = "unitName", source = "tblUnit.name")
+    @Mapping(target = "productId", source = "tblProduct.id")
+    @Mapping(target = "productName", source = "tblProduct.name")
+    @Mapping(target = "productCode", source = "tblProduct.code")
+    @Mapping(target = "unitName", source = "tblUnit.name")
     PurchaseItemResponse toItemResponse(PurchaseItem entity);
 
     List<PurchaseItemResponse> toItemResponseList(List<PurchaseItem> items);

@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+
 public class TransferResponse {
 
     private Long id;
@@ -21,15 +21,11 @@ public class TransferResponse {
     private Long toStoreId;
     private String note;
     private BigDecimal total;
-    private BigDecimal shipping;
     private BigDecimal grandTotal;
-    private TransferStatus status;
+    private String status;
     private String attachment;
-    private Short sequenceNo;
-    private Boolean isDeleted;
     private String createdBy;
     private String updatedBy;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private  String isActive  ;
     private List<TransferItemResponse> items;
 }

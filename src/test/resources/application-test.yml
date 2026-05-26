@@ -15,7 +15,19 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6380
+      password: BBU@2026
+      timeout: 3s
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Phnom_Penh
+
+app:
+  jwt:
+    secret: test-secret-key-base64-encoded-for-testing-purposes
+    access-expiration-seconds: 3600
+    refresh-expiration-seconds: 86400
 

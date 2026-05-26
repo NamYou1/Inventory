@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
@@ -27,7 +28,8 @@ public class SubCategoryController {
 
 
     @GetMapping
-    private ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
+    @PreAuthorize("hasAuthority('subcategory:read')")
+        public ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
         Page<SubCategoryResponse> responses = subCategoryService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
@@ -41,6 +43,7 @@ public class SubCategoryController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('subcategory:read')")
     public  ResponseEntity<ApiResponse<SubCategoryResponse>> getById(@PathVariable Long id ){
         SubCategoryResponse exitsId = subCategoryService.getById(id);
         ApiResponse<SubCategoryResponse> response =ApiResponse.<SubCategoryResponse>builder()
@@ -54,6 +57,7 @@ public class SubCategoryController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('subcategory:create')")
     public  ResponseEntity<ApiResponse<SubCategoryResponse>> create( @RequestBody SubCategoryRequest request){
         SubCategoryResponse category = subCategoryService.create(request);
         ApiResponse<SubCategoryResponse> response =ApiResponse.<SubCategoryResponse>builder()
@@ -67,6 +71,7 @@ public class SubCategoryController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('subcategory:update')")
     public  ResponseEntity<ApiResponse<SubCategoryResponse>> update(@PathVariable Long id , @RequestBody SubCategoryRequest request){
         SubCategoryResponse subCategoryResponse = subCategoryService.update(id,request);
         ApiResponse<SubCategoryResponse> response =ApiResponse.<SubCategoryResponse>builder()
@@ -80,6 +85,7 @@ public class SubCategoryController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('subcategory:delete')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         subCategoryService.delete(id);
         ApiResponse<Void>
@@ -92,3 +98,5 @@ public class SubCategoryController {
         return ResponseEntity.ok(response);
     }
 }
+
+

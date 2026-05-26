@@ -3,6 +3,8 @@ package yoyo.inventory.common;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import java.util.Map;
 
 public interface PageUtil {
@@ -14,26 +16,39 @@ public interface PageUtil {
 
 
     static Pageable fromParams(Map<String, String> params) {
+
         int page = DEFAULT_PAGE_NUMBER;
         int size = DEFAULT_PAGE_SIZE;
+
+        Sort sort = Sort.by("id").ascending(); // default sort
 
         try {
             if (params.containsKey(PAGE_NUMBER)) {
                 page = Integer.parseInt(params.get(PAGE_NUMBER));
             }
+
             if (params.containsKey(PAGE_LIMIT)) {
                 size = Integer.parseInt(params.get(PAGE_LIMIT));
             }
+
+            String sortBy = params.getOrDefault("sortBy", "id");
+            String sortDir = params.getOrDefault("sortDir", "asc");
+
+            sort = sortDir.equalsIgnoreCase("desc")
+                    ? Sort.by(sortBy).descending()
+                    : Sort.by(sortBy).ascending();
+
         } catch (NumberFormatException e) {
             page = DEFAULT_PAGE_NUMBER;
             size = DEFAULT_PAGE_SIZE;
+            sort = Sort.by("id").ascending();
         }
 
-        return getPageable(page, size);
+        return getPageable(page, size, sort);
     }
 
 
-    static Pageable getPageable(int page, int size) {
+    static Pageable getPageable(int page, int size, Sort sort) {
         if (page < 1) {
             page = DEFAULT_PAGE_NUMBER;
         }

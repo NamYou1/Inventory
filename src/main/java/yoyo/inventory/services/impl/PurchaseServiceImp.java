@@ -1,8 +1,10 @@
 package yoyo.inventory.services.impl;
 
-import jakarta.transaction.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,16 +14,25 @@ import yoyo.inventory.common.PageUtil;
 import yoyo.inventory.dto.request.PurchaseItemRequest;
 import yoyo.inventory.dto.request.PurchaseRequest;
 import yoyo.inventory.dto.response.PurchaseResponse;
-import yoyo.inventory.entities.*;
+import yoyo.inventory.entities.Product;
+import yoyo.inventory.entities.PurchaseItem;
+import yoyo.inventory.entities.Purchases;
+import org.springframework.http.HttpStatus;
+import yoyo.inventory.entities.Stores;
 import yoyo.inventory.entities.status.PaymentStatus;
 import yoyo.inventory.entities.status.PurchaseStatus;
+import yoyo.inventory.entities.status.Status;
 import yoyo.inventory.enums.SaleStatus;
 import yoyo.inventory.enums.TransactionType;
+import yoyo.inventory.execption.ApiException;
+import yoyo.inventory.execption.ResourceNotFoundException;
 import yoyo.inventory.mappers.PurchaseMapper;
-import yoyo.inventory.repository.PurchaseItemRepository;
 import yoyo.inventory.repository.PurchaseRepository;
-import yoyo.inventory.repository.StockRepository;
-import yoyo.inventory.services.*;
+import yoyo.inventory.services.ProductService;
+import yoyo.inventory.services.PurchaseService;
+import yoyo.inventory.services.StockService;
+import yoyo.inventory.services.StoreService;
+import yoyo.inventory.services.TransactionService;
 import yoyo.inventory.specification.purchase.PurchaseFilter;
 import yoyo.inventory.specification.purchase.PurchaseSpec;
 
@@ -37,126 +48,235 @@ public class PurchaseServiceImp implements PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final PurchaseMapper purchaseMapper;
     private final InvoiceService invoiceService;
-    private  final ProductService productService ;
-    private  final StoreService storeService ;
-    private  final StockService stockService ;
-    private  final TransactionService transactionService ;
+    private final ProductService productService;
+    private final StoreService storeService;
+    private final StockService stockService;
+    private final TransactionService transactionService;
     private final ObjectMapper objectMapper;
-    @Transactional
+
     @Override
-    public PurchaseResponse createPurchase(PurchaseRequest request) {
-        Purchases purchases  = purchaseMapper.toEntityPurchase(request);
-//        purchases.setNo(invoiceService.generate("PUR" , purchases.getId()));
-        purchases.setPurchaseStatus(PurchaseStatus.ORDERED);
-        purchases.setPaymentStatus(PaymentStatus.PENDING);
+    @Transactional
+//    @CacheEvict(cacheNames = {"purchase-page", "purchase-response", "purchase-entity", "txn-summary"}, allEntries = true)
+    public PurchaseResponse create(PurchaseRequest request) {
+        Purchases purchase = purchaseMapper.toEntityPurchase(request);
+        purchase.setPurchaseStatus(PurchaseStatus.ORDERED);
+        purchase.setPaymentStatus(PaymentStatus.PENDING);
+        purchase.setStatus(Status.ACTIVE);
+        purchase.setNo(invoiceService.generate("PUR"));
+
+        Stores store = storeService.findById(request.getStoreId());
+        purchase.setTblStore(store);
+
         BigDecimal total = BigDecimal.ZERO;
         BigDecimal totalDiscount = BigDecimal.ZERO;
-        Stores stores = storeService.findById(request.getStoreId());
+        List<PurchaseItem> items = new ArrayList<>();
 
-        List<PurchaseItem> purchaseItems = new ArrayList<>();
-        for (PurchaseItemRequest itemRequest : request.getItems()){
-            // find product
+        for (PurchaseItemRequest itemRequest : request.getItems()) {
             Product product = productService.findById(itemRequest.getProductId());
-            PurchaseItem purchaseItem = purchaseMapper.toItemEntity(itemRequest);
-            // Set all required relationships and fields
-            purchaseItem.setTblProduct(product);
-//            purchaseItem.setTblStore(stores);
-            purchaseItem.setTblPurchase(purchases);
-            BigDecimal costPrice  = product.getCostPrice() != null ? product.getCostPrice() : BigDecimal.ZERO;
-            purchaseItem.setCostPrice(costPrice);
+            PurchaseItem item = purchaseMapper.toItemEntity(itemRequest);
+            item.setTblProduct(product);
+            item.setTblPurchase(purchase);
 
-            BigDecimal subTotal = itemRequest.getQuantity().multiply(costPrice);
+            BigDecimal costPrice = product.getCostPrice() != null ? product.getCostPrice() : BigDecimal.ZERO;
+            item.setCostPrice(costPrice);
+
+            BigDecimal subtotal = itemRequest.getQuantity().multiply(costPrice);
+            item.setSubtotal(subtotal);
+
             BigDecimal itemDiscount = itemRequest.getTotalDiscount() != null
-                ? BigDecimal.valueOf(itemRequest.getTotalDiscount())
-                : BigDecimal.ZERO;
-            purchaseItems.add(purchaseItem);
-    // Calculate Total
-            purchaseItem.setSubtotal(subTotal);
-            total = total.add(subTotal);
+                    ? BigDecimal.valueOf(itemRequest.getTotalDiscount())
+                    : BigDecimal.ZERO;
+
+            total = total.add(subtotal);
             totalDiscount = totalDiscount.add(itemDiscount);
-    // update stock
-            stockService.increaseStock(itemRequest.getProductId(), request.getStoreId() , itemRequest.getQuantity() ,costPrice);
+            items.add(item);
         }
 
-
-
-
-        // Add order-level discount
-        BigDecimal orderDiscount = request.getOrderDiscount() != null ? BigDecimal.valueOf(request.getOrderDiscount()) : BigDecimal.ZERO;
+        BigDecimal orderDiscount = request.getOrderDiscount() != null
+                ? BigDecimal.valueOf(request.getOrderDiscount())
+                : BigDecimal.ZERO;
         totalDiscount = totalDiscount.add(orderDiscount);
 
-        // Calculate grand total: total - totalDiscount
-        BigDecimal grandTotal = total.subtract(totalDiscount);
+        purchase.setTotal(total);
+        purchase.setTotalDiscount(totalDiscount);
+        purchase.setGrandTotal(total.subtract(totalDiscount));
+        purchase.setTblPurchaseItem(items);
 
-        // Set totals on purchase
-
-        purchases.setTotal(total);
-        purchases.setTotalDiscount(totalDiscount);
-        purchases.setGrandTotal(grandTotal);
-        purchases.setTblPurchaseItem(purchaseItems);
-
-        Purchases savedPurchase = purchaseRepository.save(purchases);
-        String generatedInvoiceNo = invoiceService.generate("PUR", purchases.getId());
-        purchases.setNo(generatedInvoiceNo);
-        purchaseRepository.save(purchases);
-
-
-        for (PurchaseItem savedItem : savedPurchase.getTblPurchaseItem()) {
-            transactionService.logStockMovement(
-                    TransactionType.PURCHASE,
-                    savedPurchase.getId(),                 // ពេលនេះមាន ID ពិតប្រាកដហើយ (មិន NULL)
-                    savedPurchase.getNo(),                 // មានលេខវិក្កយបត្រពិតប្រាកដ (មិន NULL)
-                    savedItem.getTblProduct().getId(),
-                    request.getStoreId(),
-                    savedItem.getTblUnit().getId(),        // យក Unit ID ចេញពី Item
-                    savedItem.getQuantity(),
-                    BigDecimal.ONE,                        // unitQuantity default 1
-                    savedItem.getCostPrice(),
-                    SaleStatus.COMPLETED,
-                    "CURRENT_USER_ID"                      // ឈ្មោះអ្នកបង្កើត
-            );
-        }
-        return purchaseMapper.toResponsePurchase(savedPurchase);
+        return purchaseMapper.toResponsePurchase(purchaseRepository.save(purchase));
     }
 
-
-
-
-//    private void updateProductStock(Long productId, Long storeId, Double quantity) {
-//        Product product = productService.findById(productId);
-//        Stores store = storeService.findById(storeId);
-//
-//        Stock stock = stockRepository.findByTblProductIdAndTblStoreId(productId, storeId)
-//                .orElseGet(() -> {
-//                    Stock newStock = new Stock();
-//                    newStock.setTblProduct(product);
-//                    newStock.setTblStore(store);
-//                    newStock.setQuantity(BigDecimal.ZERO);
-//                    return newStock;
-//                });
-//        stock.setQuantity(stock.getQuantity().add(BigDecimal.valueOf(quantity)));
-//        stock.setLastRestockDate(LocalDateTime.now());
-//        stockRepository.save(stock);
-//    }
-
-
-
     @Override
-    public Page<PurchaseResponse> getAllPurchases(Map<String, String> params) {
+//    @Cacheable(cacheNames = "purchase-page", key = "#params.toString()")
+    public Page<PurchaseResponse> getAll(Map<String, String> params) {
         PurchaseFilter filter = objectMapper.convertValue(params, PurchaseFilter.class);
         Pageable pageable = PageUtil.fromParams(params);
-        
         Specification<Purchases> spec = PurchaseSpec.filterBy(filter);
         return purchaseRepository.findAll(spec, pageable).map(purchaseMapper::toResponsePurchase);
     }
 
     @Override
-    public PurchaseResponse getPurchaseById(Long id) {
-        return null;
+//    @Cacheable(cacheNames = "purchase-response", key = "#id")
+    public PurchaseResponse getById(Long id ) {
+        return purchaseMapper.toResponsePurchase(findPurchaseById(id));
     }
 
     @Override
-    public PurchaseResponse cancelPurchase(Long id) {
-        return null;
+    @Transactional
+//    @CacheEvict(cacheNames = {"purchase-page", "purchase-response", "purchase-entity", "txn-summary"}, allEntries = true)
+    public PurchaseResponse update(Long id, PurchaseRequest request, String updatedBy) {
+        Purchases purchase = findPurchaseById(id);
+        if (purchase.getPurchaseStatus() != PurchaseStatus.ORDERED) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only ORDERED purchase can be updated");
+        }
+
+        purchase.setNote(request.getNote());
+        if (request.getDate() != null) {
+            purchase.setDate(request.getDate());
+        }
+        purchase.setUpdatedBy(updatedBy);
+        purchase.setUpdatedAt(LocalDateTime.now());
+        return purchaseMapper.toResponsePurchase(purchaseRepository.save(purchase));
+    }
+
+    @Override
+    @Transactional
+//    @CacheEvict(cacheNames = {"purchase-page", "purchase-response", "purchase-entity", "txn-summary"}, allEntries = true)
+    public PurchaseResponse approve(Long id, String updatedBy) {
+        Purchases purchase = findPurchaseById(id);
+        if (purchase.getPurchaseStatus() != PurchaseStatus.ORDERED) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only ORDERED purchase can be approved");
+        }
+
+        purchase.setPurchaseStatus(PurchaseStatus.APPROVED);
+        purchase.setUpdatedBy(updatedBy);
+        purchase.setUpdatedAt(LocalDateTime.now());
+        return purchaseMapper.toResponsePurchase(purchaseRepository.save(purchase));
+    }
+
+    @Override
+    @Transactional
+//    @CacheEvict(cacheNames = {"purchase-page", "purchase-response", "purchase-entity", "txn-summary"}, allEntries = true)
+    public PurchaseResponse complete(Long id, String updatedBy) {
+        Purchases purchase = findPurchaseById(id);
+        if (purchase.getPurchaseStatus() != PurchaseStatus.APPROVED) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only APPROVED purchase can be completed");
+        }
+
+        Long storeId = getStoreIdOrThrow(purchase);
+        for (PurchaseItem item : purchase.getTblPurchaseItem()) {
+            stockService.increaseStock(
+                    item.getTblProduct().getId(),
+                    storeId,
+                    item.getQuantity(),
+                    item.getCostPrice()
+            );
+
+            transactionService.logStockMovement(
+                    TransactionType.PURCHASE,
+                    purchase.getId(),
+                    purchase.getNo(),
+                    item.getTblProduct().getId(),
+                    storeId,
+                    resolveUnitId(item),
+                    item.getQuantity(),
+                    BigDecimal.ONE,
+                    item.getCostPrice(),
+                    SaleStatus.COMPLETED,
+                    updatedBy
+            );
+        }
+
+        purchase.setPurchaseStatus(PurchaseStatus.COMPLETED);
+        purchase.setPaymentStatus(PaymentStatus.PAID);
+        purchase.setUpdatedBy(updatedBy);
+        purchase.setUpdatedAt(LocalDateTime.now());
+        return purchaseMapper.toResponsePurchase(purchaseRepository.save(purchase));
+    }
+
+    @Override
+    @Transactional
+//    @CacheEvict(cacheNames = {"purchase-page", "purchase-response", "purchase-entity", "txn-summary"}, allEntries = true)
+    public PurchaseResponse cancel(Long id, String updatedBy) {
+        Purchases purchase = findPurchaseById(id);
+        if (purchase.getPurchaseStatus() == PurchaseStatus.CANCELLED
+                || purchase.getPurchaseStatus() == PurchaseStatus.RETURNED
+                || purchase.getPaymentStatus() == PaymentStatus.REFUNDED) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Purchase already cancelled/refunded");
+        }
+
+        if (purchase.getPurchaseStatus() == PurchaseStatus.COMPLETED) {
+            reverseStockAndSaveTransactions(purchase, updatedBy);
+        }
+
+        purchase.setPurchaseStatus(PurchaseStatus.RETURNED);
+        purchase.setPaymentStatus(PaymentStatus.REFUNDED);
+        purchase.setUpdatedBy(updatedBy);
+        purchase.setUpdatedAt(LocalDateTime.now());
+        return purchaseMapper.toResponsePurchase(purchaseRepository.save(purchase));
+    }
+
+    @Override
+    @Transactional
+//    @CacheEvict(cacheNames = {"purchase-page", "purchase-response", "purchase-entity", "txn-summary"}, allEntries = true)
+    public void delete(Long id, String deletedBy) {
+        Purchases purchase = findPurchaseById(id);
+        if (purchase.getStatus() == Status.INACTIVE) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Purchase already deleted");
+        }
+        if (purchase.getPurchaseStatus() == PurchaseStatus.COMPLETED) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Cannot delete completed purchase");
+        }
+
+        purchase.setStatus(Status.INACTIVE);
+        purchase.setDeletedBy(deletedBy);
+        purchase.setDeletedAt(LocalDateTime.now());
+        purchase.setUpdatedBy(deletedBy);
+        purchase.setUpdatedAt(LocalDateTime.now());
+        purchaseRepository.save(purchase);
+    }
+
+    private Purchases findPurchaseById(Long id) {
+        return purchaseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Purchase", id));
+    }
+
+    private Long getStoreIdOrThrow(Purchases purchase) {
+        if (purchase.getTblStore() == null || purchase.getTblStore().getId() == null) {
+            throw new IllegalStateException("Purchase store is required");
+        }
+        return purchase.getTblStore().getId();
+    }
+
+    private void reverseStockAndSaveTransactions(Purchases purchase, String updatedBy) {
+        Long storeId = getStoreIdOrThrow(purchase);
+        for (PurchaseItem item : purchase.getTblPurchaseItem()) {
+            stockService.decreaseStock(item.getTblProduct().getId(), storeId, item.getQuantity());
+
+            transactionService.logStockMovement(
+                    TransactionType.ADJUSTMENT_OUT,
+                    purchase.getId(),
+                    purchase.getNo(),
+                    item.getTblProduct().getId(),
+                    storeId,
+                    resolveUnitId(item),
+                    item.getQuantity(),
+                    BigDecimal.ONE,
+                    item.getCostPrice(),
+                    SaleStatus.CANCELLED,
+                    updatedBy
+            );
+        }
+    }
+
+    private Long resolveUnitId(PurchaseItem item) {
+        if (item.getTblUnit() != null && item.getTblUnit().getId() != null) {
+            return item.getTblUnit().getId();
+        }
+        if (item.getTblProduct() != null
+                && item.getTblProduct().getTblUnit() != null
+                && item.getTblProduct().getTblUnit().getId() != null) {
+            return item.getTblProduct().getTblUnit().getId();
+        }
+        throw new IllegalStateException("Unit is required to log purchase transaction for product " + item.getTblProduct().getId());
     }
 }

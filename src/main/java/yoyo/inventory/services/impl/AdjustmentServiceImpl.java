@@ -3,6 +3,8 @@ package yoyo.inventory.services.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,11 +13,10 @@ import yoyo.inventory.common.PageUtil;
 import yoyo.inventory.dto.request.AdjustmentRequest;
 import yoyo.inventory.dto.response.AdjustmentResponse;
 import yoyo.inventory.entities.Product;
-import yoyo.inventory.entities.Stock;
 import yoyo.inventory.entities.StockAdjustment;
 import yoyo.inventory.entities.Stores;
 import yoyo.inventory.enums.AdjustmentStatus;
-import yoyo.inventory.execption.ResourceNotFoundExecption;
+import yoyo.inventory.execption.ResourceNotFoundException;
 import yoyo.inventory.mappers.AdjustmentMapper;
 import yoyo.inventory.repository.AdjustmentRepository;
 import yoyo.inventory.services.AdjustmentService;
@@ -41,6 +42,7 @@ public class AdjustmentServiceImpl implements AdjustmentService {
     private final ObjectMapper objectMapper;
 
     @Override
+//    @CacheEvict(cacheNames = {"adjustment-page", "adjustment-entity", "adjustment-response"}, allEntries = true)
     public AdjustmentResponse create(AdjustmentRequest request, String createdBy)
     {
      Product product = productService.findById(request.getProductId());
@@ -73,16 +75,19 @@ public class AdjustmentServiceImpl implements AdjustmentService {
     }
 
     @Override
+    @Cacheable(cacheNames = "adjustment-entity", key = "#id")
     public StockAdjustment findById(Long id) {
-        return adjustmentRepository.findById(id).orElseThrow(()->new ResourceNotFoundExecption("Adjustment", id));
+        return adjustmentRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Adjustment", id));
     }
 
     @Override
+//    @Cacheable(cacheNames = "adjustment-response", key = "#id")
     public AdjustmentResponse getById(Long id) {
         return adjustmentMapper.toResponse(findById(id));
     }
 
     @Override
+//    @Cacheable(cacheNames = "adjustment-page", key = "#params.toString()")
     public Page<AdjustmentResponse> getAll(Map<String, String> params) {
         AdjustmentFilter filter = objectMapper.convertValue(params, AdjustmentFilter.class);
         Pageable pageable = PageUtil.fromParams(params);
@@ -90,6 +95,7 @@ public class AdjustmentServiceImpl implements AdjustmentService {
         return  adjustmentRepository.findAll(spec , pageable).map(adjustmentMapper::toResponse);
     }
     @Override
+//    @CacheEvict(cacheNames = {"adjustment-page", "adjustment-entity", "adjustment-response"}, allEntries = true)
     public AdjustmentResponse updateStatus(Long id, AdjustmentStatus status, String updatedBy)
     {
         StockAdjustment adjustment = findById(id);
@@ -100,6 +106,7 @@ public class AdjustmentServiceImpl implements AdjustmentService {
     }
 
     @Override
+//    @CacheEvict(cacheNames = {"adjustment-page", "adjustment-entity", "adjustment-response"}, allEntries = true)
     public void delete(Long id) {
         StockAdjustment adjustment = findById(id);
         adjustment.setStatus(AdjustmentStatus.CANCELLED);

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
@@ -14,7 +15,6 @@ import yoyo.inventory.dto.response.CategoryResponse;
 import yoyo.inventory.execption.ApiResponse;
 import yoyo.inventory.services.CategoryService;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -27,7 +27,8 @@ public class CategoryController {
 
 
     @GetMapping
-    private ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
+    @PreAuthorize("hasAuthority('category:read')")
+        public ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
         Page<CategoryResponse> responses = categoryService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
@@ -41,6 +42,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('category:read')")
     public  ResponseEntity<ApiResponse<CategoryResponse>> getById(@PathVariable Long id ){
         CategoryResponse exitsId = categoryService.getById(id);
         ApiResponse<CategoryResponse> response =ApiResponse.<CategoryResponse>builder()
@@ -54,6 +56,7 @@ public class CategoryController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('category:create')")
     public  ResponseEntity<ApiResponse<CategoryResponse>> create( @RequestBody CategoryRequest request){
         CategoryResponse category = categoryService.createCategory(request);
         ApiResponse<CategoryResponse> response =ApiResponse.<CategoryResponse>builder()
@@ -67,6 +70,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('category:update')")
     public  ResponseEntity<ApiResponse<CategoryResponse>> update(@PathVariable Long id , @RequestBody CategoryRequest request){
         CategoryResponse supplier = categoryService.updateCategory(id,request);
         ApiResponse<CategoryResponse> response =ApiResponse.<CategoryResponse>builder()
@@ -80,6 +84,7 @@ public class CategoryController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('category:delete')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         ApiResponse<Void>
@@ -92,3 +97,5 @@ public class CategoryController {
         return ResponseEntity.ok(response);
     }
 }
+
+

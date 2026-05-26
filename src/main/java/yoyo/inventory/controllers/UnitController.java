@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
@@ -25,7 +26,8 @@ import java.util.Map;
 public class UnitController {
     private  final UnitService unitService ;
     @GetMapping
-    private ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
+    @PreAuthorize("hasAuthority('unit:read')")
+        public ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
         Page<UnitResponse> responses = unitService.getAll(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
@@ -39,6 +41,7 @@ public class UnitController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('unit:read')")
     public  ResponseEntity<ApiResponse<UnitResponse>> getById(@PathVariable Long id ){
         UnitResponse exitsId = unitService.getById(id);
         ApiResponse<UnitResponse> response =ApiResponse.<UnitResponse>builder()
@@ -52,6 +55,7 @@ public class UnitController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('unit:create')")
     public  ResponseEntity<ApiResponse<UnitResponse>> create( @RequestBody UnitRequest request){
         UnitResponse unitResponse = unitService.create(request);
         ApiResponse<UnitResponse> response =ApiResponse.<UnitResponse>builder()
@@ -65,6 +69,7 @@ public class UnitController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('unit:update')")
     public  ResponseEntity<ApiResponse<UnitResponse>> update(@PathVariable Long id , @RequestBody UnitRequest request){
         UnitResponse unitResponse = unitService.update(id,request);
         ApiResponse<UnitResponse> response =ApiResponse.<UnitResponse>builder()
@@ -78,6 +83,7 @@ public class UnitController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('unit:delete')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         unitService.delete(id);
         ApiResponse<Void>
@@ -90,3 +96,5 @@ public class UnitController {
         return ResponseEntity.ok(response);
     }
 }
+
+

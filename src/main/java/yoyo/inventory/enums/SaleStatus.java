@@ -4,6 +4,7 @@ public enum SaleStatus {
 
     PENDING,
     COMPLETED,
-    CANCELLED
+    CANCELLED,
+    RETURNED
 
 }

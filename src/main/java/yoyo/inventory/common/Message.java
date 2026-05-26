@@ -20,4 +20,5 @@ public class Message {
     public static String deleted(String entity , long id ) {
         return entity +  id  +" deleted successfully";
     }
+
 }

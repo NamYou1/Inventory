@@ -11,7 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tbl_unit")
+@Table(name = "tbl_unit", indexes = {
+        @Index(name = "idx_unit_code", columnList = "code"),
+        @Index(name = "idx_unit_name", columnList = "name"),
+        @Index(name = "idx_unit_status", columnList = "status")
+})
 public class Unit extends  BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,4 +33,4 @@ public class Unit extends  BaseEntity{
     private List<Product> products;
     @OneToMany(mappedBy = "tblUnit")
     private  List<PurchaseItem> purchaseItems ;
-}
+   @OneToMany(mappedBy = "unit") private List<TransferItem> transferItems ;}

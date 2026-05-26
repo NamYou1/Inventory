@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import yoyo.inventory.common.Message;
 import yoyo.inventory.common.PageDTO;
@@ -27,7 +28,8 @@ import java.util.Map;
 public class SupplierController {
     private  final SupplierService supplierService ;
     @GetMapping
-    private ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
+    @PreAuthorize("hasAuthority('supplier:read')")
+        public ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String  , String> params){
         Page<SupplierResponse> responses = supplierService.getAllSuppliers(params);
         PageDTO pageDTO =  new PageDTO(responses);
         ApiResponse<PageDTO> response = ApiResponse.<PageDTO>builder()
@@ -41,6 +43,7 @@ public class SupplierController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('supplier:read')")
     public  ResponseEntity<ApiResponse<SupplierResponse>> getById(@PathVariable Long id ){
         SupplierResponse exitsId = supplierService.getById(id);
         ApiResponse<SupplierResponse> response =ApiResponse.<SupplierResponse>builder()
@@ -54,6 +57,7 @@ public class SupplierController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('supplier:create')")
     public  ResponseEntity<ApiResponse<SupplierResponse>> create( @RequestBody SupplierRequest request){
         SupplierResponse supplier = supplierService.createSupplier(request);
         ApiResponse<SupplierResponse> response =ApiResponse.<SupplierResponse>builder()
@@ -67,6 +71,7 @@ public class SupplierController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('supplier:update')")
     public  ResponseEntity<ApiResponse<SupplierResponse>> update(@PathVariable Long id , @RequestBody SupplierRequest request){
         SupplierResponse supplier = supplierService.updateSupplier(id,request);
         ApiResponse<SupplierResponse> response =ApiResponse.<SupplierResponse>builder()
@@ -80,6 +85,7 @@ public class SupplierController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAuthority('supplier:delete')")
     public ResponseEntity<ApiResponse<Void>> deleteSeller(@PathVariable Long id) {
         supplierService.deleteSupplier(id);
         ApiResponse<Void>
@@ -92,3 +98,5 @@ public class SupplierController {
         return ResponseEntity.ok(response);
     }
 }
+
+

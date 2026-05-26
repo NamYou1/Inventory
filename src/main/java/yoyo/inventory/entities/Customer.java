@@ -11,7 +11,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "customers", indexes = {
+        @Index(name = "idx_customer_code", columnList = "customerCode"),
+        @Index(name = "idx_customer_phone", columnList = "phone"),
+        @Index(name = "idx_customer_email", columnList = "email"),
+        @Index(name = "idx_customer_status", columnList = "status"),
+        @Index(name = "idx_customer_created_at", columnList = "createdAt")
+})
 @Getter
 @Setter
 @NoArgsConstructor

@@ -13,7 +13,16 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "tbl_purchases")
+@Table(name = "tbl_purchases", indexes = {
+        @Index(name = "idx_purchase_no", columnList = "no"),
+        @Index(name = "idx_purchase_date", columnList = "date"),
+        @Index(name = "idx_purchase_status", columnList = "purchaseStatus"),
+        @Index(name = "idx_purchase_payment_status", columnList = "paymentStatus"),
+        @Index(name = "idx_purchase_active_status", columnList = "status"),
+        @Index(name = "idx_purchase_store", columnList = "store_id"),
+        @Index(name = "idx_purchase_seller", columnList = "seller_id"),
+        @Index(name = "idx_purchase_supplier", columnList = "supplier_id")
+})
 @Entity
 public class Purchases extends BaseEntity { // if you use audit base
     @Id

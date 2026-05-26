@@ -11,7 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tbl_category")
+@Table(name = "tbl_category", indexes = {
+        @Index(name = "idx_category_status", columnList = "status")
+})
 public class Category extends  BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

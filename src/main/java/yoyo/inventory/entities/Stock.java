@@ -13,7 +13,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tbl_stock")
+@Table(name = "tbl_stock", indexes = {
+        @Index(name = "idx_stock_product", columnList = "product_id"),
+        @Index(name = "idx_stock_store", columnList = "store_id"),
+        @Index(name = "idx_stock_product_store", columnList = "product_id, store_id")
+})
 public class Stock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

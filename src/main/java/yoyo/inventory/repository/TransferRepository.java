@@ -16,14 +16,6 @@ import java.util.Optional;
 public interface TransferRepository extends JpaRepository<Transfer, Long>,
         JpaSpecificationExecutor<Transfer> {
 
-    boolean existsByTransferNo(String transferNo);
-
-    Optional<Transfer> findByIdAndIsDeletedFalse(Long id);
-
-    // Soft delete
-    @Modifying
-    @Query("UPDATE Transfer t SET t.isDeleted = true, t.updatedBy = :updatedBy WHERE t.id = :id")
-    void softDelete(@Param("id") Long id, @Param("updatedBy") String updatedBy);
 
     // Update status only
     @Modifying

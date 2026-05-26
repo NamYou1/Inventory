@@ -11,7 +11,12 @@ import yoyo.inventory.entities.status.Status;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "tbl_suppliers")
+@Table(name = "tbl_suppliers", indexes = {
+        @Index(name = "idx_supplier_name", columnList = "name"),
+        @Index(name = "idx_supplier_email", columnList = "email"),
+        @Index(name = "idx_supplier_phone", columnList = "phone"),
+        @Index(name = "idx_supplier_status", columnList = "status")
+})
 public class Suppliers {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

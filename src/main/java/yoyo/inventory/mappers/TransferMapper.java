@@ -9,27 +9,33 @@ import yoyo.inventory.entities.Transfer;
 import yoyo.inventory.entities.TransferItem;
 import yoyo.inventory.services.ProductService;
 import yoyo.inventory.services.StoreService;
+import yoyo.inventory.services.UnitService;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {StoreService.class , ProductService.class})
+@Mapper(componentModel = "spring", uses = {StoreService.class , ProductService.class , UnitService.class})
 public interface TransferMapper {
 
     // CREATE
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "fromStoreId" , source = "fromStoreId")
     @Mapping(target = "toStoreId" , source = "toStoreId")
-
     Transfer toEntity(TransferRequest request);
 
-    @Mapping(target = "id", ignore = true)
+//    @Mapping(target = "id", ignore = true)
     @Mapping(target = "fromStoreId", source = "fromStoreId.id")
-    @Mapping(target = "toStoreId", source = "fromStoreId.id")
+    @Mapping(target = "toStoreId", source = "toStoreId.id")
     // RESPONSE
    TransferResponse toResponse(Transfer transfer);
 
 //    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "productId" , source = "productId")
+    @Mapping(target = "productId" , source = "product.id")
+    @Mapping(target = "unitId" , source = "unit.id")
+    TransferItemResponse toItemResponse(TransferItem item);
+
+//    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "product" , source = "productId")
+    @Mapping(target = "unit"  , source = "unitId")
     TransferItem toItemRequest(TransferItemRequest entity);
 
 

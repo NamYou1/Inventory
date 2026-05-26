@@ -29,6 +29,8 @@ public class Transaction extends  BaseEntity {
     private LocalDateTime tranDate ;
     private  String referenceNo ;
     // this is reference to another table like sale , purchase , adjustment , transfer
+    @Enumerated(EnumType.STRING )
+    @Column(length = 20)
     private TransactionType transactionType ;
     private  Long referenceId ;
     private BigDecimal quantity ;

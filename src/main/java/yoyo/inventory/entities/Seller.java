@@ -11,7 +11,11 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "tbl_seller")
+@Table(name = "tbl_seller", indexes = {
+        @Index(name = "idx_seller_email", columnList = "email"),
+        @Index(name = "idx_seller_phone", columnList = "phone"),
+        @Index(name = "idx_seller_status", columnList = "status")
+})
 public class Seller extends  BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

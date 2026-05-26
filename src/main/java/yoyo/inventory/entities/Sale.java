@@ -10,7 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "sales")
+@Table(name = "sales", indexes = {
+        @Index(name = "idx_sale_invoice_no", columnList = "invoiceNo"),
+        @Index(name = "idx_sale_date", columnList = "saleDate"),
+        @Index(name = "idx_sale_status", columnList = "status"),
+        @Index(name = "idx_sale_store", columnList = "store_id"),
+        @Index(name = "idx_sale_customer", columnList = "customer_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -54,20 +60,11 @@ public class Sale {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Stores store;
-
-    @OneToMany(
-            mappedBy = "sale",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<SaleItem> items = new ArrayList<>();
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
-
-    @OneToOne(
-            mappedBy = "sale",
-            cascade = CascadeType.ALL
-    )
+    @OneToOne(mappedBy = "sale", cascade = CascadeType.ALL)
     private Invoice invoice;
 }
