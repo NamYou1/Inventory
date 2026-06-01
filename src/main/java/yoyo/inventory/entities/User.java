@@ -40,6 +40,12 @@ public class User {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    @Column(name = "provider", length = 50)
+    private String provider = "LOCAL";
+
+    @Column(name = "provider_id")
+    private String providerId;
+
     @Column(name = "is_active")
     private Boolean isActive = true;
 
@@ -79,6 +85,9 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Stores store;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserProfile profile;
 
     @PrePersist
     void prePersist() {

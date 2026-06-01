@@ -77,6 +77,29 @@ public class SaleController {
                 .build();
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('sale:update')")
+    public ApiResponse<SaleResponse> update(
+            @PathVariable Long id,
+            @RequestBody SaleRequest request,
+            Principal principal
+    ) {
+
+        return ApiResponse.<SaleResponse>builder()
+                .success("true")
+                .status(HttpStatus.OK)
+                .message("Sale updated successfully")
+                .payload(
+                        saleService.update(
+                                id,
+                                request,
+                                principal != null ? principal.getName() : "system"
+                        )
+                )
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('sale:update')")
     public ApiResponse<SaleResponse> updateStatus(

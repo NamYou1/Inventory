@@ -25,12 +25,13 @@ public interface ProductMapper {
     @Mapping(target = "tblCategory", source = "categoryId")
     @Mapping(target = "tblSubCategory", source = "subCategoryId")
     @Mapping(target = "tblUnit", source = "unitId")
+    @Mapping(target = "imageUrl" , ignore = true)
     Product toEntity(ProductRequest request);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tblCategory", source = "categoryId")
     @Mapping(target = "tblSubCategory", source = "subCategoryId")
     @Mapping(target = "tblUnit", source = "unitId")
-
+    @Mapping(target = "imageUrl" , ignore = true)
     void updateFromRequest (ProductRequest request , @MappingTarget Product product);
 }

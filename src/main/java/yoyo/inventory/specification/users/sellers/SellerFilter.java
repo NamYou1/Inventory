@@ -1,4 +1,4 @@
-package yoyo.inventory.specification.sellers;
+package yoyo.inventory.specification.users.sellers;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

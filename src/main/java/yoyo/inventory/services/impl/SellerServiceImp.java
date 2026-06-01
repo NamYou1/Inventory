@@ -2,8 +2,6 @@ package yoyo.inventory.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,8 +16,8 @@ import yoyo.inventory.execption.ResourceNotFoundException;
 import yoyo.inventory.mappers.SellerMapper;
 import yoyo.inventory.repository.SellerRepository;
 import yoyo.inventory.services.SellerService;
-import yoyo.inventory.specification.sellers.SellerFilter;
-import yoyo.inventory.specification.sellers.SellerSpec;
+import yoyo.inventory.specification.users.sellers.SellerFilter;
+import yoyo.inventory.specification.users.sellers.SellerSpec;
 
 import java.util.Map;
 @Service

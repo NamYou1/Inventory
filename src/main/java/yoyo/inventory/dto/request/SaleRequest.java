@@ -13,6 +13,8 @@ public class SaleRequest {
     @NotNull
     private Long storeId;
 
+    private Long customerId;
+
     private String note;
 
     private BigDecimal discountAmount;

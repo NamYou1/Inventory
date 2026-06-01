@@ -2,10 +2,14 @@ package yoyo.inventory.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yoyo.inventory.common.PageUtil;
 import yoyo.inventory.dto.request.UserRequest;
 import yoyo.inventory.dto.response.UserResponse;
 import yoyo.inventory.entities.Role;
@@ -32,8 +36,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> getAll(Map<String, String> params) {
         User currentUser = getCurrentUser();
-        org.springframework.data.domain.Pageable pageable = yoyo.inventory.common.PageUtil.fromParams(params);
-
+       Pageable pageable = PageUtil.fromParams(params);
         Page<User> usersPage;
         if (currentUser.getStore() != null) {
             boolean isSuperAdmin = hasRole(currentUser, "ROLE_SUPER_ADMIN");
@@ -63,7 +66,7 @@ public class UserServiceImpl implements UserService {
             boolean isSuperAdmin = hasRole(currentUser, "ROLE_SUPER_ADMIN");
             if (!isSuperAdmin) {
                 if (user.getStore() == null || !user.getStore().getId().equals(currentUser.getStore().getId())) {
-                    throw new org.springframework.security.access.AccessDeniedException("You do not have permission to access this user.");
+                    throw new AccessDeniedException("You do not have permission to access this user.");
                 }
             }
         }
@@ -200,7 +203,7 @@ public class UserServiceImpl implements UserService {
 
                 if (currentUser.getStore() != null && !hasRole(currentUser, "ROLE_SUPER_ADMIN")) {
                     if (!"ROLE_STAFF".equals(code) && !"ROLE_SALE".equals(code) && !"ROLE_MANAGER".equals(code)) {
-                        throw new org.springframework.security.access.AccessDeniedException(
+                        throw new AccessDeniedException(
                                 "Store Administrator can only assign ROLE_STAFF, ROLE_SALE, and ROLE_MANAGER roles."
                         );
                     }
@@ -218,18 +221,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void delete(Long id) {
         User currentUser = getCurrentUser();
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", id));
-
+        User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
         if (user.getDeletedAt() != null) {
             return;
         }
-
         if (currentUser.getStore() != null) {
             boolean isSuperAdmin = hasRole(currentUser, "ROLE_SUPER_ADMIN");
             if (!isSuperAdmin) {
                 if (user.getStore() == null || !user.getStore().getId().equals(currentUser.getStore().getId())) {
-                    throw new org.springframework.security.access.AccessDeniedException("You do not have permission to delete this user.");
+                    throw new AccessDeniedException("You do not have permission to delete this user.");
                 }
             }
         }
@@ -242,7 +242,7 @@ public class UserServiceImpl implements UserService {
     private User getCurrentUser() {
         String usernameOrEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
-                .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("Authenticated user not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Authenticated user not found"));
     }
 
     private boolean hasRole(User user, String roleCode) {

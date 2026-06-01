@@ -79,5 +79,5 @@ public class Invoice {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<Payment> payments = new ArrayList<>();
+    private List<Payment> payments ;
 }

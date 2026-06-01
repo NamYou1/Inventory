@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import yoyo.inventory.constants.ErrorCode;
 import yoyo.inventory.execption.ApiResponse;
-import yoyo.inventory.services.CloudinaryService;
+import yoyo.inventory.services.FileStorageService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -20,19 +20,19 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/upload")
 @RequiredArgsConstructor
-@Tag(name = "Upload", description = "Endpoints for uploading files to Cloudinary")
+@Tag(name = "Upload", description = "Endpoints for uploading files to local RustFS object storage")
 public class UploadController {
 
-    private final CloudinaryService cloudinaryService;
+    private final FileStorageService fileStorageService;
 
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("isAuthenticated()")
-    @Operation(summary = "Upload an image to Cloudinary", description = "Accepts an image file and returns the secure URL from Cloudinary.")
+    @Operation(summary = "Upload an image to RustFS", description = "Accepts an image file and returns the file URL from local RustFS S3-compatible storage.")
     public ResponseEntity<ApiResponse<Map<String, String>>> uploadImage(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "folder", defaultValue = "inventory") String folder
     ) {
-        String secureUrl = cloudinaryService.uploadFile(file, folder);
+        String secureUrl = fileStorageService.uploadFile(file, folder);
 
         Map<String, String> payload = new HashMap<>();
         payload.put("url", secureUrl);
@@ -41,7 +41,7 @@ public class UploadController {
         ApiResponse<Map<String, String>> response = ApiResponse.<Map<String, String>>builder()
                 .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
-                .message("Image uploaded successfully to Cloudinary")
+                .message("Image uploaded successfully to RustFS")
                 .payload(payload)
                 .timestamp(LocalDateTime.now())
                 .build();

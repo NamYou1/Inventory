@@ -51,7 +51,7 @@ public class Product extends BaseEntity {
 
     private Integer alertQuantity = 0;
 
-    @Column(length = 255)
+    @Column(length = 500)
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)

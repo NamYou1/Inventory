@@ -1,4 +1,4 @@
-package yoyo.inventory.specification.sellers;
+package yoyo.inventory.specification.users.sellers;
 
 import jakarta.persistence.criteria.Predicate;
 import lombok.Data;

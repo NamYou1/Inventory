@@ -30,7 +30,7 @@ public class ProductRequest {
     private  String details ;
     private  Integer alertQuantity ;
 
-    private String imageUrl ;
+    private MultipartFile imageUrl ;
     @NotNull(message = "unitId is required")
     private  Long unitId;
     @NotNull(message = "categoryId is required")

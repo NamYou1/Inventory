@@ -27,15 +27,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j // សម្រាប់កត់ត្រា Log ក្នុង Console ពេលមាន Error ងាយស្រួល Debug
+@Slf4j 
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
-    private final EntityManager entityManager; // សម្រាប់ reference proxies របស់ Product, Store, Unit កុំឱ្យហៅទិន្នន័យពី DB នាំយឺត
+    private final EntityManager entityManager; 
 
     @Override
-    @Transactional // ធានាថាការលក់/ទិញ និងការកត់ត្រា Log ស្តុក ត្រូវតែជោគជ័យជាមួយគ្នា ឬបរាជ័យជាមួយគ្នា (Atomicity)
-//    @CacheEvict(cacheNames = "txn-summary", allEntries = true)
+    @Transactional 
     public void logStockMovement(
             TransactionType type, Long referenceId, String referenceNo,
             Long productId, Long storeId, Long unitId,
@@ -53,18 +52,13 @@ public class TransactionServiceImpl implements TransactionService {
             tx.setStatus(status);
             tx.setCreatedBy(createdBy);
 
-            // 💡 គន្លឹះសំខាន់៖ បើលក់ ឬផ្ទេរចេញ ត្រូវកត់ត្រាតម្លៃដក (-) ដើម្បីងាយស្រួល SUM ក្នុង Report
             if (type == TransactionType.SALE || type == TransactionType.TRANSFER_OUT || type == TransactionType.ADJUSTMENT_OUT) {
-                tx.setQuantity(qty.negate()); // ប្តូរទៅជាតម្លៃអវិជ្ជមាន (ឧ. -10.00)
+                tx.setQuantity(qty.negate());
             } else {
-                tx.setQuantity(qty); // ទិញចូល, ផ្ទេរចូល, ឬកើនឡើង រក្សាតម្លៃវិជ្ជមាន (+) ធម្មតា
+                tx.setQuantity(qty);
             }
 
-            // គណនាទឹកប្រាក់សរុប (Quantity * Price)
-            // ប្រើ abs() ដើម្បីកុំឱ្យតម្លៃទឹកប្រាក់ទៅជាដក ក្នុង Report
             tx.setTotalAmount(qty.abs().multiply(price));
-
-            // ការប្រើgetReference ជួយឱ្យ JPA បង្កើត Proxy Object ដោយមិនបាច់ទៅ Query Table ផ្សេងនាំខាតពេល (ព្រោះយើងដឹង ID ហើយ)
             tx.setTblProduct(entityManager.getReference(Product.class, productId));
             tx.setTblStore(entityManager.getReference(Stores.class, storeId));
             tx.setTblUnit(entityManager.getReference(Unit.class, unitId));
@@ -80,8 +74,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 
     @Override
-    @Transactional(readOnly = true) // readOnly = true ជួយឱ្យ Query ដើរលឿនជាងមុន
-//    @Cacheable(cacheNames = "stock-balance", key = "#storeId + ':' + #productId")
+    @Transactional(readOnly = true) 
     public BigDecimal getStockBalance(Long storeId, Long productId) {
         BigDecimal balance = transactionRepository.getStockBalance(storeId, productId);
         return balance != null ? balance : BigDecimal.ZERO;
@@ -89,21 +82,18 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-//    @Cacheable(cacheNames = "txn-by-date-range", key = "#startDate.toString() + ':' + #endDate.toString()")
     public List<Transaction> getReportsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return transactionRepository.findByTranDateBetween(startDate, endDate);
     }
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(cacheNames = "txn-by-type", key = "#type.name()")
     public List<Transaction> getReportsByType(TransactionType type) {
         return transactionRepository.findByTransactionType(type);
     }
 
     @Override
     @Transactional(readOnly = true)
-//    @Cacheable(cacheNames = "txn-summary", key = "#period == null ? 'today' : #period.toLowerCase()")
     public TransactionSummaryReportResponse getSummaryReport(String period) {
         String normalized = period == null ? "today" : period.trim().toLowerCase();
         DateRange range = resolveRange(normalized);

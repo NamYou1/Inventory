@@ -1,28 +1,40 @@
 spring:
   config:
     import: optional:file:.env[.properties]
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   application:
     name: Inventory
+
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-  Jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-    time-zone: Asia/Phnom_Penh
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update   # dev only → production should be "validate"
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-      show-sql: true
+        format_sql: true
+    show-sql: true
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Phnom_Penh
+
   devtools:
     restart:
       enabled: true
-    LiveReload:
+    livereload:
       enabled: true
+
   data:
     redis:
       host: ${REDIS_HOST}
@@ -30,15 +42,28 @@ spring:
       password: ${REDIS_PASSWORD}
       timeout: 3s
 
-cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME}
-  api-key: ${CLOUDINARY_API_KEY}
-  api-secret: ${CLOUDINARY_API_SECRET}
 
+# -------------------------
+# CLOUDINARY CONFIG
+# -------------------------
+rustfs:
+  endpoint: ${RUSTFS_ENDPOINT}
+  access-key: ${RUSTFS_ACCESS_KEY}
+  secret-key: ${RUSTFS_SECRET_KEY}
+  bucket: ${RUSTFS_BUCKET}
+
+aws:
+  region: ${AWS_REGION}
+
+
+# -------------------------
+# JWT CONFIG
+# -------------------------
 app:
   jwt:
-    secret: ${JWT_SECRET_BASE64:VGhpc0lzQVN0cm9uZ0RldmVsb3BtZW50S2V5VGhhdE11c3RCZUF0TGVhc3QzMkJ5dGVzTG9uZw==}
-    access-expiration-seconds: ${JWT_ACCESS_EXP_SECONDS:900}
-    refresh-expiration-seconds: ${JWT_REFRESH_EXP_SECONDS:1209600}
+    secret: ${JWT_SECRET_BASE64}
+    access-expiration-seconds: ${JWT_ACCESS_EXP_SECONDS}
+    refresh-expiration-seconds: ${JWT_REFRESH_EXP_SECONDS}
+
 
 kind: Application

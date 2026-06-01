@@ -1,9 +1,7 @@
 package yoyo.inventory.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import yoyo.inventory.entities.status.Status;
 import yoyo.inventory.entities.status.TransferStatus;
 
@@ -20,7 +18,8 @@ import java.util.List;
         @Index(name = "idx_transfer_from_store", columnList = "from_store_id"),
         @Index(name = "idx_transfer_to_store", columnList = "to_store_id")
 })
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Transfer extends  BaseEntity {
@@ -55,14 +54,6 @@ public class Transfer extends  BaseEntity {
     @OneToMany(mappedBy = "transfer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TransferItem> items ;
 
-    // Helper method to sync items
-//    public void setItems(List<TransferItem> items) {
-//        this.items.clear();
-//        if (items != null) {
-//            items.forEach(item -> item.setTransfer(this));
-//            this.items.addAll(items);
-//        }
-//    }
 
 
 }

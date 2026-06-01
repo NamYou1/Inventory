@@ -2,22 +2,23 @@ package yoyo.inventory.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import yoyo.inventory.common.InvoiceService;
 import yoyo.inventory.dto.request.SaleItemRequest;
 import yoyo.inventory.dto.request.SaleRequest;
 import yoyo.inventory.dto.response.SaleResponse;
-import yoyo.inventory.entities.Product;
-import yoyo.inventory.entities.Sale;
-import yoyo.inventory.entities.SaleItem;
-import yoyo.inventory.entities.Stores;
+import yoyo.inventory.entities.*;
+import yoyo.inventory.enums.InvoiceStatus;
 import yoyo.inventory.enums.SaleStatus;
 import yoyo.inventory.enums.TransactionType;
+import yoyo.inventory.execption.ApiException;
 import yoyo.inventory.execption.ResourceNotFoundException;
 import yoyo.inventory.mappers.SaleMapper;
+import yoyo.inventory.repository.CustomerRepository;
+import yoyo.inventory.repository.InvoiceRepository;
 import yoyo.inventory.repository.SaleRepository;
 import yoyo.inventory.services.ProductService;
 import yoyo.inventory.services.SaleService;
@@ -26,6 +27,7 @@ import yoyo.inventory.services.StoreService;
 import yoyo.inventory.services.TransactionService;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,81 +43,79 @@ public class SaleServiceImpl implements SaleService {
     private final ProductService productService;
     private final StoreService storeService;
     private final TransactionService transactionService;
+    private final CustomerRepository customerRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final InvoiceService invoiceService;
 
     @Override
-//    @CacheEvict(cacheNames = {"sale-page", "sale-response", "txn-summary"}, allEntries = true)
     public SaleResponse create(SaleRequest request, String createdBy) {
         Stores store = storeService.findById(request.getStoreId());
 
         Sale sale = new Sale();
-        sale.setInvoiceNo("INV-" + System.currentTimeMillis());
+        sale.setInvoiceNo(invoiceService.generate("SAL"));
         sale.setSaleDate(LocalDateTime.now());
         sale.setStatus(SaleStatus.PENDING);
         sale.setStore(store);
         sale.setNote(request.getNote());
         sale.setCreatedBy(createdBy);
 
-        BigDecimal subTotal = BigDecimal.ZERO;
-        List<SaleItem> saleItems = new ArrayList<>();
-        for (SaleItemRequest itemRequest : request.getItems()) {
-            Product product = productService.findById(itemRequest.getProductId());
-            BigDecimal discount = itemRequest.getDiscountAmount() == null ? BigDecimal.ZERO : itemRequest.getDiscountAmount();
-            BigDecimal totalPrice = itemRequest.getUnitPrice().multiply(itemRequest.getQuantity()).subtract(discount);
-
-            SaleItem saleItem = SaleItem.builder()
-                    .sale(sale)
-                    .product(product)
-                    .quantity(itemRequest.getQuantity())
-                    .unitPrice(itemRequest.getUnitPrice())
-                    .discountAmount(discount)
-                    .totalPrice(totalPrice)
-                    .build();
-
-            saleItems.add(saleItem);
-            subTotal = subTotal.add(totalPrice);
+        // Set customer if provided
+        if (request.getCustomerId() != null) {
+            Customer customer = customerRepository.findById(request.getCustomerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Customer", request.getCustomerId()));
+            sale.setCustomer(customer);
         }
 
-        BigDecimal discountAmount = request.getDiscountAmount() == null ? BigDecimal.ZERO : request.getDiscountAmount();
-        BigDecimal taxAmount = request.getTaxAmount() == null ? BigDecimal.ZERO : request.getTaxAmount();
-        BigDecimal totalAmount = subTotal.subtract(discountAmount).add(taxAmount);
-
-        sale.setItems(saleItems);
-        sale.setSubTotal(subTotal);
-        sale.setDiscountAmount(discountAmount);
-        sale.setTaxAmount(taxAmount);
-        sale.setTotalAmount(totalAmount);
+        // Build items and calculate amounts
+        buildSaleItems(sale, request);
 
         return saleMapper.toResponse(saleRepository.save(sale));
     }
 
     @Override
-//    @Cacheable(cacheNames = "sale-response", key = "#id")
     public SaleResponse getById(Long id) {
         return saleMapper.toResponse(findById(id));
     }
 
     @Override
-//    @Cacheable(cacheNames = "sale-page", key = "#pageable.pageNumber + ':' + #pageable.pageSize + ':' + #pageable.sort.toString()")
     public Page<SaleResponse> getAll(Pageable pageable) {
         return saleRepository.findAll(pageable).map(saleMapper::toResponse);
     }
 
     @Override
-//    @CacheEvict(cacheNames = {"sale-page", "sale-response", "txn-summary"}, allEntries = true)
     public SaleResponse update(Long id, SaleRequest request, String updatedBy) {
         Sale sale = findById(id);
         if (sale.getStatus() != SaleStatus.PENDING) {
-            throw new ResourceNotFoundException("Only PENDING sale can be updated");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only PENDING sale can be updated");
         }
 
+        // Update store if changed
+        if (request.getStoreId() != null) {
+            Stores store = storeService.findById(request.getStoreId());
+            sale.setStore(store);
+        }
+
+        // Update customer
+        if (request.getCustomerId() != null) {
+            Customer customer = customerRepository.findById(request.getCustomerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Customer", request.getCustomerId()));
+            sale.setCustomer(customer);
+        } else {
+            sale.setCustomer(null);
+        }
+
+        // Update note
         sale.setNote(request.getNote());
         sale.setUpdatedBy(updatedBy);
+
+        // Clear existing items and rebuild
+        sale.getItems().clear();
+        buildSaleItems(sale, request);
 
         return saleMapper.toResponse(saleRepository.save(sale));
     }
 
     @Override
-//    @CacheEvict(cacheNames = {"sale-page", "sale-response", "txn-summary"}, allEntries = true)
     public SaleResponse approve(Long id, String updatedBy) {
         Sale sale = findById(id);
         if (sale.getStatus() != SaleStatus.PENDING) {
@@ -127,13 +127,13 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
-//    @CacheEvict(cacheNames = {"sale-page", "sale-response", "txn-summary"}, allEntries = true)
     public SaleResponse complete(Long id, String updatedBy) {
         Sale sale = findById(id);
         if (sale.getStatus() != SaleStatus.PENDING) {
-            throw new ResourceNotFoundException("Only PENDING sale can be completed");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only PENDING sale can be completed");
         }
 
+        // Deduct stock and log transactions
         for (SaleItem item : sale.getItems()) {
             stockService.decreaseStock(
                     item.getProduct().getId(),
@@ -158,15 +158,19 @@ public class SaleServiceImpl implements SaleService {
 
         sale.setStatus(SaleStatus.COMPLETED);
         sale.setUpdatedBy(updatedBy);
-        return saleMapper.toResponse(saleRepository.save(sale));
+        Sale savedSale = saleRepository.save(sale);
+
+        // Generate Invoice
+        generateInvoice(savedSale);
+
+        return saleMapper.toResponse(savedSale);
     }
 
     @Override
-//    @CacheEvict(cacheNames = {"sale-page", "sale-response", "txn-summary"}, allEntries = true)
     public SaleResponse cancel(Long id, String updatedBy) {
         Sale sale = findById(id);
         if (sale.getStatus() == SaleStatus.CANCELLED || sale.getStatus() == SaleStatus.RETURNED) {
-            throw new ResourceNotFoundException("Sale already closed");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Sale already closed");
         }
 
         if (sale.getStatus() == SaleStatus.COMPLETED) {
@@ -177,7 +181,6 @@ public class SaleServiceImpl implements SaleService {
                         item.getQuantity(),
                         item.getProduct().getCostPrice()
                 );
-
                 transactionService.logStockMovement(
                         TransactionType.ADJUSTMENT_IN,
                         sale.getId(),
@@ -200,14 +203,13 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
-//    @CacheEvict(cacheNames = {"sale-page", "sale-response", "txn-summary"}, allEntries = true)
     public SaleResponse returnSale(Long id, String updatedBy) {
         Sale sale = findById(id);
         if (sale.getStatus() == SaleStatus.RETURNED) {
-            throw new ResourceNotFoundException("Sale already returned");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Sale already returned");
         }
         if (sale.getStatus() != SaleStatus.COMPLETED) {
-            throw new ResourceNotFoundException("Only COMPLETED sale can be returned");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only COMPLETED sale can be returned");
         }
 
         for (SaleItem item : sale.getItems()) {
@@ -239,11 +241,10 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
-//    @CacheEvict(cacheNames = {"sale-page", "sale-response", "txn-summary"}, allEntries = true)
     public void delete(Long id, String deletedBy) {
         Sale sale = findById(id);
         if (sale.getStatus() == SaleStatus.COMPLETED) {
-            throw new ResourceNotFoundException("Cannot delete completed sale");
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Cannot delete completed sale");
         }
         saleRepository.delete(sale);
     }
@@ -268,6 +269,70 @@ public class SaleServiceImpl implements SaleService {
         sale.setStatus(SaleStatus.PENDING);
         sale.setUpdatedBy(updatedBy);
         return saleMapper.toResponse(saleRepository.save(sale));
+    }
+
+    // =====================================
+    // PRIVATE HELPERS
+    // =====================================
+
+    /**
+     * Build sale items from request and set calculated amounts on the sale.
+     */
+    private void buildSaleItems(Sale sale, SaleRequest request) {
+        BigDecimal subTotal = BigDecimal.ZERO;
+        List<SaleItem> saleItems = new ArrayList<>();
+
+        for (SaleItemRequest itemRequest : request.getItems()) {
+            Product product = productService.findById(itemRequest.getProductId());
+            BigDecimal discount = itemRequest.getDiscountAmount() == null ? BigDecimal.ZERO : itemRequest.getDiscountAmount();
+            BigDecimal totalPrice = itemRequest.getUnitPrice().multiply(itemRequest.getQuantity()).subtract(discount);
+
+            SaleItem saleItem = SaleItem.builder()
+                    .sale(sale)
+                    .product(product)
+                    .quantity(itemRequest.getQuantity())
+                    .unitPrice(itemRequest.getUnitPrice())
+                    .discountAmount(discount)
+                    .totalPrice(totalPrice)
+                    .build();
+
+            saleItems.add(saleItem);
+            subTotal = subTotal.add(totalPrice);
+        }
+
+        BigDecimal discountAmount = request.getDiscountAmount() == null ? BigDecimal.ZERO : request.getDiscountAmount();
+        BigDecimal taxAmount = request.getTaxAmount() == null ? BigDecimal.ZERO : request.getTaxAmount();
+        BigDecimal totalAmount = subTotal.subtract(discountAmount).add(taxAmount);
+
+        sale.getItems().addAll(saleItems);
+        sale.setSubTotal(subTotal);
+        sale.setDiscountAmount(discountAmount);
+        sale.setTaxAmount(taxAmount);
+        sale.setTotalAmount(totalAmount);
+    }
+
+    /**
+     * Generate an Invoice entity from a completed sale.
+     */
+    private void generateInvoice(Sale sale) {
+        Invoice invoice = Invoice.builder()
+                .invoiceNo(invoiceService.generate("INV"))
+                .invoiceDate(LocalDateTime.now())
+                .dueDate(LocalDate.now().plusDays(30))
+                .status(InvoiceStatus.UNPAID)
+                .subTotal(sale.getSubTotal())
+                .discountAmount(sale.getDiscountAmount())
+                .taxAmount(sale.getTaxAmount())
+                .grandTotal(sale.getTotalAmount())
+                .paidAmount(BigDecimal.ZERO)
+                .balanceDue(sale.getTotalAmount())
+                .sale(sale)
+                .customer(sale.getCustomer())
+                .payments(new ArrayList<>())
+                .build();
+
+        invoiceRepository.save(invoice);
+        sale.setInvoice(invoice);
     }
 
     private Long resolveUnitId(SaleItem item) {

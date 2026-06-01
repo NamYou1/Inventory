@@ -22,6 +22,10 @@ public class SaleResponse {
 
     private String storeName;
 
+    private Long customerId;
+
+    private String customerName;
+
     private BigDecimal subTotal;
 
     private BigDecimal discountAmount;
@@ -33,4 +37,6 @@ public class SaleResponse {
     private String note;
 
     private List<SaleItemResponse> items;
+
+    private InvoiceResponse invoice;
 }

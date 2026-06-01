@@ -54,7 +54,6 @@ public class TransferServiceImpl implements TransferService {
 
     // CREATE
     @Override
-//    @CacheEvict(cacheNames = {"transfer-page", "transfer-response", "txn-summary"}, allEntries = true)
     public TransferResponse create(TransferRequest request) {
 
         Transfer transfer = transferMapper.toEntity(request);
@@ -74,9 +73,7 @@ public class TransferServiceImpl implements TransferService {
         for (TransferItemRequest itemRequest : request.getItems()) {
 
             Product product = productService.findById(itemRequest.getProductId());
-
             TransferItem item = transferMapper.toItemRequest(itemRequest);
-
             item.setTransfer(transfer);
             item.setCostPrice(product.getCostPrice());
             item.setProduct(product);
@@ -95,15 +92,12 @@ public class TransferServiceImpl implements TransferService {
     // GET
     @Override
     @Transactional
-//    @Cacheable(cacheNames = "transfer-response", key = "#id")
     public TransferResponse getById(Long id) {
         return transferMapper.toResponse(find(id));
     }
-
     // LIST
     @Override
     @Transactional
-//    @Cacheable(cacheNames = "transfer-page", key = "#params.toString()")
     public Page<TransferResponse> getAll(Map<String, String> params) {
         TransferFilter filter = objectMapper.convertValue(params, TransferFilter.class);
         Pageable pageable = PageUtil.fromParams(params);
@@ -113,7 +107,6 @@ public class TransferServiceImpl implements TransferService {
 
     // UPDATE
     @Override
-//    @CacheEvict(cacheNames = {"transfer-page", "transfer-response", "txn-summary"}, allEntries = true)
     public TransferResponse update(Long id, TransferRequest request, String updatedBy) {
         Transfer transfer = find(id);
         if (transfer.getStatus() != TransferStatus.PENDING) {
@@ -147,17 +140,12 @@ public class TransferServiceImpl implements TransferService {
     }
 
     @Override
-//    @CacheEvict(cacheNames = {"transfer-page", "transfer-response", "txn-summary"}, allEntries = true)
     public TransferResponse complete(Long id, String updatedBy) {
         Transfer transfer = find(id);
-
         if (transfer.getStatus() != TransferStatus.APPROVED) {
-
             throw new ResourceNotFoundException("Only APPROVED transfer can complete");
         }
-
         for (TransferItem item : transfer.getItems()) {
-
             stockService.transferStock(
                     item.getProduct().getId(),
                     transfer.getFromStoreId().getId(),

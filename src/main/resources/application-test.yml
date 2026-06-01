@@ -16,3 +16,8 @@ spring:
   jackson:
     time-zone: Asia/Phnom_Penh
 
+#  rustfs.url=http://localhost:9000
+#  rustfs.access.name=${RUSTFS_ACCESS_KEY}
+#  rustfs.access.secret=${RUSTFS_SECRET_KEY}
+#  rustfs.bucket.name=demo-file-upload
+

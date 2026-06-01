@@ -11,18 +11,11 @@ import java.time.LocalDateTime;
 public class StockResponse {
 
     private Long id;
-
     private BigDecimal quantity;
-
     private BigDecimal costPrice;
-
     private Integer reorderLevel;
-
     private Integer alertQuantity;
-
     private LocalDateTime lastRestockDate;
-
     private String productName;
-
     private String storeName;
 }

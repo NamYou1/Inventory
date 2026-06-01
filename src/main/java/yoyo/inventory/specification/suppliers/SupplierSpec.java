@@ -2,10 +2,8 @@ package yoyo.inventory.specification.suppliers;
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
-import yoyo.inventory.entities.Seller;
 import yoyo.inventory.entities.Suppliers;
 import yoyo.inventory.entities.status.Status;
-import yoyo.inventory.specification.sellers.SellerFilter;
 
 import java.util.ArrayList;
 import java.util.List;

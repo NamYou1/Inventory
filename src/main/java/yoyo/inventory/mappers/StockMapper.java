@@ -8,13 +8,7 @@ import yoyo.inventory.entities.Stock;
 @Mapper(componentModel = "spring")
 public interface StockMapper {
 
-    @Mapping(
-            source = "tblProduct.name",
-            target = "productName"
-    )
-    @Mapping(
-            source = "tblStore.name",
-            target = "storeName"
-    )
+    @Mapping(source = "tblProduct.name", target = "productName")
+    @Mapping(source = "tblStore.name", target = "storeName")
     StockResponse toResponse(Stock stock);
 }

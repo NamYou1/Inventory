@@ -24,7 +24,6 @@ public interface TransactionService {
             String createdBy
     );
 
-    // សម្រាប់ទាញយក Stock Report (តុល្យភាពស្តុកបច្ចុប្បន្ន)
     BigDecimal getStockBalance(Long storeId, Long productId);
 
     // សម្រាប់ទាញយក Transaction History តាមចន្លោះថ្ងៃខែ (សម្រាប់ធ្វើ Report ផ្សេងៗ)

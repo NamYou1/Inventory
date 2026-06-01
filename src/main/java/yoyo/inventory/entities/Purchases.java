@@ -57,19 +57,5 @@ public class Purchases extends BaseEntity { // if you use audit base
     @OneToMany(mappedBy = "tblPurchase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PurchaseItem> tblPurchaseItem ;
 
-//    private String attachment;
-//    private Short received;
-
-
-
-//    private BigDecimal productDiscount;
-//    private BigDecimal orderDiscount;
-//    private BigDecimal totalDiscount;
-
-//    private BigDecimal paid;
-    // status
-
-    // relationships
-
 
 }

@@ -7,7 +7,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import yoyo.inventory.execption.CloudinaryUploadException;
+import yoyo.inventory.execption.FileUploadException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -23,8 +23,8 @@ public class GobbleExceptionHandler {
         return  ResponseEntity.status(e.getStatus()).body(errorResponse);
     }
 
-    @ExceptionHandler(value = CloudinaryUploadException.class)
-    public ResponseEntity<ErrorResponse> handleCloudinaryUploadException(CloudinaryUploadException e){
+    @ExceptionHandler(value = FileUploadException.class)
+    public ResponseEntity<ErrorResponse> handleFileUploadException(FileUploadException e){
         ErrorResponse errorResponse = new ErrorResponse(e.getStatus(), e.getMessage());
         return ResponseEntity.status(e.getStatus()).body(errorResponse);
     }

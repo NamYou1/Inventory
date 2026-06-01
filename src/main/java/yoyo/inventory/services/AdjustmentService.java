@@ -12,13 +12,8 @@ import java.util.Map;
 public interface AdjustmentService {
     Page<AdjustmentResponse> getAll(Map<String, String> params);
     AdjustmentResponse create(AdjustmentRequest request, String createdBy);
-
     StockAdjustment findById(Long id);
     AdjustmentResponse getById(Long id);
-
-
-//    Page<AdjustmentResponse> getAll(Pageable pageable);
-
     AdjustmentResponse updateStatus(Long id, AdjustmentStatus status, String updatedBy);
     void delete(Long id);
 }
