@@ -1,9 +1,8 @@
 package yoyo.inventory.enums;
 
 public enum SaleStatus {
-    PENDING,
+    HOLD  ,
     COMPLETED,
     CANCELLED,
     RETURNED
-
 }

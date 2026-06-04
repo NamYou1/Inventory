@@ -74,7 +74,7 @@ services:
       - "8080:8080"
     environment:
       # Database (Uses container name 'postgres' for container-to-container connection)
-      DB_URL: ${DB_URL}
+      DB_URL: jdbc:postgresql://postgres:5432/kk
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
 

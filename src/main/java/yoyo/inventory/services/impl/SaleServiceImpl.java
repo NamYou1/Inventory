@@ -25,6 +25,12 @@ import yoyo.inventory.services.SaleService;
 import yoyo.inventory.services.StockService;
 import yoyo.inventory.services.StoreService;
 import yoyo.inventory.services.TransactionService;
+import yoyo.inventory.specification.sale.SaleFilter;
+import yoyo.inventory.specification.sale.SaleSpec;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.jpa.domain.Specification;
+import yoyo.inventory.common.PageUtil;
+import java.util.Map;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -46,29 +52,26 @@ public class SaleServiceImpl implements SaleService {
     private final CustomerRepository customerRepository;
     private final InvoiceRepository invoiceRepository;
     private final InvoiceService invoiceService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public SaleResponse create(SaleRequest request, String createdBy) {
         Stores store = storeService.findById(request.getStoreId());
-
         Sale sale = new Sale();
         sale.setInvoiceNo(invoiceService.generate("SAL"));
         sale.setSaleDate(LocalDateTime.now());
-        sale.setStatus(SaleStatus.PENDING);
+        sale.setStatus(SaleStatus.COMPLETED);
         sale.setStore(store);
         sale.setNote(request.getNote());
         sale.setCreatedBy(createdBy);
-
         // Set customer if provided
         if (request.getCustomerId() != null) {
             Customer customer = customerRepository.findById(request.getCustomerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Customer", request.getCustomerId()));
             sale.setCustomer(customer);
         }
-
         // Build items and calculate amounts
         buildSaleItems(sale, request);
-
         return saleMapper.toResponse(saleRepository.save(sale));
     }
 
@@ -78,15 +81,18 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
-    public Page<SaleResponse> getAll(Pageable pageable) {
-        return saleRepository.findAll(pageable).map(saleMapper::toResponse);
+    public Page<SaleResponse> getAll(Map<String, String> params) {
+        SaleFilter filter = objectMapper.convertValue(params, SaleFilter.class);
+        Pageable pageable = PageUtil.fromParams(params);
+        Specification<Sale> spec = SaleSpec.filterBy(filter);
+        return saleRepository.findAll(spec, pageable).map(saleMapper::toResponse);
     }
 
     @Override
     public SaleResponse update(Long id, SaleRequest request, String updatedBy) {
         Sale sale = findById(id);
-        if (sale.getStatus() != SaleStatus.PENDING) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Only PENDING sale can be updated");
+        if (sale.getStatus() != SaleStatus.HOLD) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only HOLD sale can be updated");
         }
 
         // Update store if changed
@@ -118,8 +124,8 @@ public class SaleServiceImpl implements SaleService {
     @Override
     public SaleResponse approve(Long id, String updatedBy) {
         Sale sale = findById(id);
-        if (sale.getStatus() != SaleStatus.PENDING) {
-            throw new ResourceNotFoundException("Only PENDING sale can be approved");
+        if (sale.getStatus() != SaleStatus.HOLD) {
+            throw new ResourceNotFoundException("Only HOLD sale can be approved");
         }
         sale.setStatus(SaleStatus.COMPLETED);
         sale.setUpdatedBy(updatedBy);
@@ -129,8 +135,8 @@ public class SaleServiceImpl implements SaleService {
     @Override
     public SaleResponse complete(Long id, String updatedBy) {
         Sale sale = findById(id);
-        if (sale.getStatus() != SaleStatus.PENDING) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Only PENDING sale can be completed");
+        if (sale.getStatus() != SaleStatus.HOLD) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Only HOLD sale can be completed");
         }
 
         // Deduct stock and log transactions
@@ -266,7 +272,7 @@ public class SaleServiceImpl implements SaleService {
             return returnSale(id, updatedBy);
         }
         Sale sale = findById(id);
-        sale.setStatus(SaleStatus.PENDING);
+        sale.setStatus(SaleStatus.HOLD);
         sale.setUpdatedBy(updatedBy);
         return saleMapper.toResponse(saleRepository.save(sale));
     }

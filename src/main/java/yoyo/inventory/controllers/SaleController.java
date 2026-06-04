@@ -2,7 +2,6 @@ package yoyo.inventory.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +13,7 @@ import yoyo.inventory.services.SaleService;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/sales")
@@ -63,7 +63,7 @@ public class SaleController {
     @GetMapping
     @PreAuthorize("hasAuthority('sale:read')")
     public ApiResponse<Page<SaleResponse>> getAll(
-            Pageable pageable
+            @RequestParam Map<String, String> params
     ) {
 
         return ApiResponse.<Page<SaleResponse>>builder()
@@ -71,7 +71,7 @@ public class SaleController {
                 .status(HttpStatus.OK)
                 .message("Sale list retrieved successfully")
                 .payload(
-                        saleService.getAll(pageable)
+                        saleService.getAll(params)
                 )
                 .timestamp(LocalDateTime.now())
                 .build();
