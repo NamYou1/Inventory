@@ -21,6 +21,9 @@ public class SubCategorySpec {
             if (filter.getCode() != null && !filter.getCode().isEmpty()) {
                 predicates.add(cb.like(cb.upper(root.get("code")), "%" + filter.getCode().toUpperCase() + "%"));
             }
+            if (filter.getCategoryId() != null) {
+                predicates.add(cb.equal(root.get("categoryId"), filter.getCategoryId()));
+            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

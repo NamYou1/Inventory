@@ -12,7 +12,7 @@ public class PurchaseFilter {
     private String no;
     private Long storeId;
     private Long supplierId;
-    private Long sellerId;
+    private Long userId;
     private String purchaseStatus;
     private String paymentStatus;
 }

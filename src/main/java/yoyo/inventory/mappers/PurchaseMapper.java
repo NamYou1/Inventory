@@ -12,7 +12,7 @@ import yoyo.inventory.services.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {SupplierService.class, SellerService.class, ProductService.class, StoreService.class, UnitService.class})
+@Mapper(componentModel = "spring", uses = {SupplierService.class, UserService.class, ProductService.class, StoreService.class, UnitService.class})
 public interface PurchaseMapper {
 
 //    PurchaseResponse toResponsePurchase (Purchases purchases );
@@ -20,7 +20,7 @@ public interface PurchaseMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tblSuppliers" , source = "supplierId")
-    @Mapping(target = "tblSeller" , source = "sellerId")
+    @Mapping(target = "tblUser" , source = "userId")
     @Mapping(target = "tblStore" , source = "storeId")
     @Mapping(target = "tblPurchaseItem", source = "items")
     Purchases toEntityPurchase(PurchaseRequest request);
@@ -35,8 +35,8 @@ public interface PurchaseMapper {
     @Mapping(target = "supplierName", source = "tblSuppliers.name")
     @Mapping(target = "storeId", source = "tblStore.id")
     @Mapping(target = "storeName", source = "tblStore.name")
-    @Mapping(target = "sellerId", source = "tblSeller.id")
-    @Mapping(target = "sellerName", source = "tblSeller.name")
+    @Mapping(target = "userId", source = "tblUser.id")
+    @Mapping(target = "userName", source = "tblUser.username")
 
     @Mapping(target = "purchasesStatus", expression = "java(entity.getPurchaseStatus() != null ? entity.getPurchaseStatus().name() : null)")
     @Mapping(target = "items", source = "tblPurchaseItem")

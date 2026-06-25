@@ -20,7 +20,7 @@ import java.util.List;
         @Index(name = "idx_purchase_payment_status", columnList = "paymentStatus"),
         @Index(name = "idx_purchase_active_status", columnList = "status"),
         @Index(name = "idx_purchase_store", columnList = "store_id"),
-        @Index(name = "idx_purchase_seller", columnList = "seller_id"),
+        @Index(name = "idx_purchase_user", columnList = "user_id"),
         @Index(name = "idx_purchase_supplier", columnList = "supplier_id")
 })
 @Entity
@@ -49,8 +49,8 @@ public class Purchases extends BaseEntity { // if you use audit base
     @JoinColumn(name = "store_id", nullable = false)
     private Stores tblStore;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
-    private  Seller tblSeller;
+    @JoinColumn(name = "user_id", nullable = false)
+    private  User tblUser;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier_id" , nullable = false)
     private Suppliers tblSuppliers;

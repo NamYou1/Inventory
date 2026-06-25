@@ -17,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -67,8 +68,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Long userId = uid != null ? uid.longValue() : null;
 
             // Extract Roles and Permissions list
-            java.util.List<?> roles = claims.get("roles", java.util.List.class);
-            java.util.List<?> permissions = claims.get("permissions", java.util.List.class);
+            java.util.List<?> roles = claims.get("roles", List.class);
+            java.util.List<?> permissions = claims.get("permissions", List.class);
 
             log.info("Username: {}", username);
             log.info("Roles: {}", roles);

@@ -89,6 +89,9 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private UserProfile profile;
 
+    @OneToMany(mappedBy = "tblUser")
+    private java.util.List<Purchases> tblPurchase;
+
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();

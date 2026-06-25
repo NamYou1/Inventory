@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import yoyo.inventory.entities.status.Status;
 
-import java.util.List;
 
 @AllArgsConstructor
 @Setter
@@ -28,9 +27,6 @@ public class Seller extends  BaseEntity {
     private  String phone ;
     @Enumerated(EnumType.STRING)
     private Status status ;
-
-    @OneToMany(mappedBy = "tblSeller")
-    private List<Purchases> tblPurchase ;
 
 
 }

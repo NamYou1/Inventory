@@ -1,9 +1,9 @@
 version: "3.9"
 
 services:
-  postgres-bbu-service-local:
+  postgres-local:
     image: postgres:17
-    container_name: postgres-bbu-service-local
+    container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: postgres

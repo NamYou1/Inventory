@@ -11,13 +11,13 @@ import yoyo.inventory.entities.status.Status;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UnitRequest {
-    private  Integer baseUnit ;
-    @NotNull(message = "Code is required ")
-    private  String code ;
-    @NotNull(message = "Name is required ")
-    private  String name;
-    private  String operation ;
-    @NumberFormat
-    private  Integer operationValue ;
-    private Status status = Status.ACTIVE;
+        private  Integer baseUnit ;
+        @NotNull(message = "Code is required ")
+        private  String code ;
+        @NotNull(message = "Name is required ")
+        private  String name;
+        private  String operation ;
+        @NumberFormat
+        private  Integer operationValue ;
+        private Status status = Status.ACTIVE;
 }

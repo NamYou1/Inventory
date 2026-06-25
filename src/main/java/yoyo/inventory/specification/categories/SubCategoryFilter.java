@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class SubCategoryFilter {
     private  String code ;
     private  String name;
+    private  Long categoryId ;
 }

@@ -64,7 +64,7 @@ public class SupplierController {
                 .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
                 .timestamp(LocalDateTime.now())
-                .message(Message.created("Seller"))
+                .message(Message.created("Supplier"))
                 .payload(supplier)
                 .build();
         return  ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -78,22 +78,22 @@ public class SupplierController {
                 .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
                 .timestamp(LocalDateTime.now())
-                .message(Message.updated("Seller",id))
+                .message(Message.updated("Supplier",id))
                 .payload(supplier)
                 .build();
         return  ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('supplier:delete')")
-    public ResponseEntity<ApiResponse<Void>> deleteSeller(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteSupplier(@PathVariable Long id) {
         supplierService.deleteSupplier(id);
         ApiResponse<Void>
                 response = ApiResponse.<Void>builder()
                 .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
                 .timestamp(LocalDateTime.now())
-                .message(Message.deleted("Seller", id))
+                .message(Message.deleted("Supplier", id))
                 .build();
         return ResponseEntity.ok(response);
     }

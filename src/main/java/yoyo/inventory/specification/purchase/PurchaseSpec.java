@@ -28,8 +28,8 @@ public class PurchaseSpec {
             if (filter.getSupplierId() != null) {
                 predicates.add(cb.equal(root.get("tblSuppliers").get("id"), filter.getSupplierId()));
             }
-            if (filter.getSellerId() != null) {
-                predicates.add(cb.equal(root.get("tblSeller").get("id"), filter.getSellerId()));
+            if (filter.getUserId() != null) {
+                predicates.add(cb.equal(root.get("tblUser").get("id"), filter.getUserId()));
             }
             if (filter.getPurchaseStatus() != null && !filter.getPurchaseStatus().isEmpty()) {
                 predicates.add(cb.equal(root.get("purchaseStatus"), filter.getPurchaseStatus()));

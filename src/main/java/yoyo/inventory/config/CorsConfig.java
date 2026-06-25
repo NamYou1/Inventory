@@ -21,7 +21,6 @@ public class CorsConfig {
         // Include PATCH as it is used for completing sales, alongside others
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         
-        // Allow all headers
         configuration.setAllowedHeaders(List.of("*"));
         
         // Support credentials (cookies, authorization headers, etc.)

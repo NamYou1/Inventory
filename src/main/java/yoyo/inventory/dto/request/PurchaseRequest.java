@@ -21,7 +21,7 @@ public class PurchaseRequest {
     private String reference;
     private String note;
     private Long supplierId;
-    private Long sellerId;
+    private Long userId;
     private Long storeId;
     private  PurchaseStatus purchaseStatus  = PurchaseStatus.ORDERED;
     private  PaymentStatus paymentStatus= PaymentStatus.PENDING;

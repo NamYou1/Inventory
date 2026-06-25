@@ -18,8 +18,8 @@ public class PurchaseResponse {
     private String supplierName;
     private Long storeId ;
     private String storeName;
-    private Long sellerId ;
-    private String sellerName;
+    private Long userId ;
+    private String userName;
     private BigDecimal total;
     private BigDecimal totalDiscount;
     private BigDecimal grandTotal;

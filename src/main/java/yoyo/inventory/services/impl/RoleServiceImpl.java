@@ -1,7 +1,7 @@
 package yoyo.inventory.services.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
+
 import org.springframework.stereotype.Service;
 import yoyo.inventory.common.UniqueChecker;
 import yoyo.inventory.dto.request.RoleRequest;
@@ -43,11 +43,6 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleResponse create(RoleRequest request) {
         Role role = new Role();
-        return getRoleResponse(request, role);
-    }
-
-    @NonNull
-    private RoleResponse getRoleResponse(RoleRequest request, Role role) {
         role.setCode(request.getCode());
         role.setName(request.getName());
         role.setDescription(request.getDescription());
@@ -60,7 +55,20 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleResponse update(Long id, RoleRequest request) {
         Role role = findById(id);
-        return getRoleResponse(request, role);
+        String oldCode = role.getCode();
+
+        role.setCode(request.getCode());
+        role.setName(request.getName());
+        role.setDescription(request.getDescription());
+        role.setPermissions(resolvePermissions(request.getPermissionIds()));
+
+        // Only check uniqueness if the code actually changed
+        if (!oldCode.equals(request.getCode())) {
+            uniqueChecker.verify(roleRepository, role, "code", role.getCode());
+        }
+
+        Role saved = roleRepository.save(role);
+        return toResponse(saved);
     }
 
     @Override

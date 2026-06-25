@@ -37,7 +37,7 @@ public class    StockController {
     public ResponseEntity<ApiResponse<PageDTO>> getAll(@RequestParam Map<String, String> params) {
         // Determine current user and role
         User currentUser = getCurrentUser();
-        boolean isSuperAdmin = currentUser.getRoles().stream().anyMatch(r -> "ROLE_SUPER_ADMIN".equals(r.getCode()));
+        boolean isSuperAdmin = currentUser.getRoles().stream().anyMatch(r -> "SUPER_ADMIN".equals(r.getCode()));
         Page<StockResponse> responses;
         if (isSuperAdmin) {
             responses = stockService.getAll(params);
@@ -86,7 +86,7 @@ public class    StockController {
             @PathVariable Long storeId
     ) {
         User currentUser = getCurrentUser();
-        boolean isSuperAdmin = currentUser.getRoles().stream().anyMatch(r -> "ROLE_SUPER_ADMIN".equals(r.getCode()));
+        boolean isSuperAdmin = currentUser.getRoles().stream().anyMatch(r -> "SUPER_ADMIN".equals(r.getCode()));
         if (!isSuperAdmin) {
             if (currentUser.getStore() == null || !currentUser.getStore().getId().equals(storeId)) {
                 throw new AccessDeniedException("You do not have permission to view stock for this store.");

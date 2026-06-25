@@ -50,7 +50,7 @@ public class SubCategoryController {
                 .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
                 .timestamp(LocalDateTime.now())
-                .message(Message.getById("Supplier",id))
+                .message(Message.getById("SubCategory",id))
                 .payload(exitsId)
                 .build();
         return  ResponseEntity.ok(response);
@@ -84,7 +84,7 @@ public class SubCategoryController {
         return  ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('subcategory:delete')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         subCategoryService.delete(id);

@@ -61,7 +61,9 @@ public class ProductServiceImp  implements ProductService {
         Product product = productMapper.toEntity(request);
         uniqueChecker.verify(productRepository , product , "name" , product.getName());
         uniqueChecker.verify(productRepository , product , "code" , product.getCode());
-        product.setImageUrl(fileStorageService.uploadFile(file , "product"));
+        if (file != null && !file.isEmpty()) {
+            product.setImageUrl(fileStorageService.uploadFile(file , "product"));
+        }
         Product savedProduct = productRepository.save(product);
         return  productMapper.toResponse(savedProduct);
     }

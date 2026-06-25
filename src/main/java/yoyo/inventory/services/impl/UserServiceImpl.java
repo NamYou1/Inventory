@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
        Pageable pageable = PageUtil.fromParams(params);
         Page<User> usersPage;
         if (currentUser.getStore() != null) {
-            boolean isSuperAdmin = hasRole(currentUser, "ROLE_SUPER_ADMIN");
+            boolean isSuperAdmin = hasRole(currentUser, "SUPER_ADMIN");
             if (!isSuperAdmin) {
                 usersPage = userRepository.findByStoreIdAndDeletedAtIsNull(currentUser.getStore().getId(), pageable);
             } else {
@@ -53,6 +53,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
+    }
+
+    @Override
     public UserResponse getById(Long id) {
         User currentUser = getCurrentUser();
         User user = userRepository.findById(id)
@@ -63,7 +69,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (currentUser.getStore() != null) {
-            boolean isSuperAdmin = hasRole(currentUser, "ROLE_SUPER_ADMIN");
+            boolean isSuperAdmin = hasRole(currentUser, "SUPER_ADMIN");
             if (!isSuperAdmin) {
                 if (user.getStore() == null || !user.getStore().getId().equals(currentUser.getStore().getId())) {
                     throw new AccessDeniedException("You do not have permission to access this user.");
@@ -81,7 +87,7 @@ public class UserServiceImpl implements UserService {
 
         // Enforce store boundary for non-super-admins
         if (currentUser.getStore() != null) {
-            boolean isSuperAdmin = hasRole(currentUser, "ROLE_SUPER_ADMIN");
+            boolean isSuperAdmin = hasRole(currentUser, "SUPER_ADMIN");
             if (!isSuperAdmin) {
                 if (targetStoreId == null || !targetStoreId.equals(currentUser.getStore().getId())) {
                     throw new org.springframework.security.access.AccessDeniedException("You can only create users for your own store.");
@@ -123,8 +129,8 @@ public class UserServiceImpl implements UserService {
                         .orElseThrow(() -> new ResourceNotFoundException("Role not found with code: " + code));
 
                 // Restrict store admin role assignments
-                if (currentUser.getStore() != null && !hasRole(currentUser, "ROLE_SUPER_ADMIN")) {
-                    if (!"ROLE_STAFF".equals(code) && !"ROLE_SALE".equals(code) && !"ROLE_MANAGER".equals(code)) {
+                if (currentUser.getStore() != null && !hasRole(currentUser, "SUPER_ADMIN")) {
+                    if (!"STAFF".equals(code) && !"SALE".equals(code) && !"MANAGER".equals(code)) {
                         throw new org.springframework.security.access.AccessDeniedException(
                                 "Store Administrator can only assign ROLE_STAFF, ROLE_SALE, and ROLE_MANAGER roles."
                         );
@@ -152,7 +158,7 @@ public class UserServiceImpl implements UserService {
 
         // Store boundary checks
         if (currentUser.getStore() != null) {
-            boolean isSuperAdmin = hasRole(currentUser, "ROLE_SUPER_ADMIN");
+            boolean isSuperAdmin = hasRole(currentUser, "SUPER_ADMIN");
             if (!isSuperAdmin) {
                 if (user.getStore() == null || !user.getStore().getId().equals(currentUser.getStore().getId())) {
                     throw new org.springframework.security.access.AccessDeniedException("You do not have permission to manage this user.");
@@ -201,8 +207,8 @@ public class UserServiceImpl implements UserService {
                 Role role = roleRepository.findByCode(code)
                         .orElseThrow(() -> new ResourceNotFoundException("Role not found with code: " + code));
 
-                if (currentUser.getStore() != null && !hasRole(currentUser, "ROLE_SUPER_ADMIN")) {
-                    if (!"ROLE_STAFF".equals(code) && !"ROLE_SALE".equals(code) && !"ROLE_MANAGER".equals(code)) {
+                if (currentUser.getStore() != null && !hasRole(currentUser, "SUPER_ADMIN")) {
+                    if (!"STAFF".equals(code) && !"SALE".equals(code) && !"MANAGER".equals(code)) {
                         throw new AccessDeniedException(
                                 "Store Administrator can only assign ROLE_STAFF, ROLE_SALE, and ROLE_MANAGER roles."
                         );
@@ -226,7 +232,7 @@ public class UserServiceImpl implements UserService {
             return;
         }
         if (currentUser.getStore() != null) {
-            boolean isSuperAdmin = hasRole(currentUser, "ROLE_SUPER_ADMIN");
+            boolean isSuperAdmin = hasRole(currentUser, "SUPER_ADMIN");
             if (!isSuperAdmin) {
                 if (user.getStore() == null || !user.getStore().getId().equals(currentUser.getStore().getId())) {
                     throw new AccessDeniedException("You do not have permission to delete this user.");

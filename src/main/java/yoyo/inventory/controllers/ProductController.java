@@ -53,10 +53,10 @@ public class ProductController {
                 .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
                 .timestamp(LocalDateTime.now())
-                .message(Message.getById("Supplier",id))
+                .message(Message.getById("Product",id))
                 .payload(exitsId)
                 .build();
-        return  ResponseEntity.ok(response);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -89,7 +89,7 @@ public class ProductController {
         return  ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('product:delete')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         productService.delete(id);
@@ -105,34 +105,34 @@ public class ProductController {
 
     // ========================= Excel Import =========================
 
-    @PostMapping(value = "/import-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAuthority('product:create')")
-    @Operation(summary = "Import products from Excel (.xlsx)")
-    public ResponseEntity<ApiResponse<ProductImportResult>> importExcel(
-            @RequestParam("file") MultipartFile file) {
-        ProductImportResult result = productService.importFromExcel(file);
-        ApiResponse<ProductImportResult> response = ApiResponse.<ProductImportResult>builder()
-                .success(ErrorCode.SUCCESS)
-                .status(HttpStatus.OK)
-                .timestamp(LocalDateTime.now())
-                .message("Imported " + result.getSuccessCount() + " of " + result.getTotalRows() + " products")
-                .payload(result)
-                .build();
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping(value = "/import-excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    @PreAuthorize("hasAuthority('product:create')")
+//    @Operation(summary = "Import products from Excel (.xlsx)")
+//    public ResponseEntity<ApiResponse<ProductImportResult>> importExcel(
+//            @RequestParam("file") MultipartFile file) {
+//        ProductImportResult result = productService.importFromExcel(file);
+//        ApiResponse<ProductImportResult> response = ApiResponse.<ProductImportResult>builder()
+//                .success(ErrorCode.SUCCESS)
+//                .status(HttpStatus.OK)
+//                .timestamp(LocalDateTime.now())
+//                .message("Imported " + result.getSuccessCount() + " of " + result.getTotalRows() + " products")
+//                .payload(result)
+//                .build();
+//        return ResponseEntity.ok(response);
+//    }
+//
+//    // ========================= Excel Export =========================
 
-    // ========================= Excel Export =========================
-
-    @GetMapping("/export-excel")
-    @PreAuthorize("hasAuthority('product:read')")
-    @Operation(summary = "Export all products to Excel (.xlsx)")
-    public ResponseEntity<byte[]> exportExcel() {
-        byte[] excelBytes = productService.exportToExcel();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        headers.setContentDispositionFormData("attachment", "products.xlsx");
-        headers.setContentLength(excelBytes.length);
-        return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
-    }
+//    @GetMapping("/export-excel")
+//    @PreAuthorize("hasAuthority('product:read')")
+//    @Operation(summary = "Export all products to Excel (.xlsx)")
+//    public ResponseEntity<byte[]> exportExcel() {
+//        byte[] excelBytes = productService.exportToExcel();
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.parseMediaType(
+//                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+//        headers.setContentDispositionFormData("attachment", "products.xlsx");
+//        headers.setContentLength(excelBytes.length);
+//        return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
+//    }
 }

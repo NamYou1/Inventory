@@ -48,7 +48,7 @@ public class StoreServiceImp implements StoreService {
 
         if (currentUser != null && currentUser.getStore() != null) {
             boolean isSuperAdmin = currentUser.getRoles().stream()
-                    .anyMatch(role -> "ROLE_SUPER_ADMIN".equals(role.getCode()));
+                    .anyMatch(role -> "SUPER_ADMIN".equals(role.getCode()));
             if (!isSuperAdmin) {
                 Long userStoreId = currentUser.getStore().getId();
                 spec = spec.and((root, query, cb) -> cb.equal(root.get("id"), userStoreId));
@@ -66,7 +66,7 @@ public class StoreServiceImp implements StoreService {
 
         if (currentUser != null && currentUser.getStore() != null) {
             boolean isSuperAdmin = currentUser.getRoles().stream()
-                    .anyMatch(role -> "ROLE_SUPER_ADMIN".equals(role.getCode()));
+                    .anyMatch(role -> "SUPER_ADMIN".equals(role.getCode()));
             if (!isSuperAdmin && !currentUser.getStore().getId().equals(id)) {
                 throw new org.springframework.security.access.AccessDeniedException("You do not have permission to access this store.");
             }

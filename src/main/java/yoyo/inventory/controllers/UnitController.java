@@ -62,7 +62,7 @@ public class UnitController {
                 .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.CREATED)
                 .timestamp(LocalDateTime.now())
-                .message(Message.created("SubCategory"))
+                .message(Message.created("Unit"))
                 .payload(unitResponse)
                 .build();
         return  ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -82,7 +82,7 @@ public class UnitController {
         return  ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('unit:delete')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         unitService.delete(id);

@@ -155,6 +155,7 @@ public class DataSeeder {
                     Permission adjustmentDelete = createPermission(adjustmentGroup, "adjustment:delete", "Delete Adjustments");
                     Permission adjustmentApprove = createPermission(adjustmentGroup, "adjustment:approve", "Approve Adjustments");
 
+                    // Stock Permissions
                     Permission stockRead = createPermission(stockGroup, "stock:read", "View Stock");
 
 
@@ -164,13 +165,13 @@ public class DataSeeder {
                     Permission reportExport = createPermission(reportGroup, "report:export", "Export Reports");
 
                     // Create Roles
-                    Role superAdmin = createRole("ROLE_SUPER_ADMIN", "Super Administrator");
-                    Role admin = createRole("ROLE_ADMIN", "Administrator");
-                    Role manager = createRole("ROLE_MANAGER", "Manager");
-                    Role supervisor = createRole("ROLE_SUPERVISOR", "Supervisor");
-                    Role staff = createRole("ROLE_STAFF", "Staff");
-                    Role sale = createRole("ROLE_SALE", "Sale");
-                    Role viewer = createRole("ROLE_VIEWER", "Viewer");
+                    Role superAdmin = createRole("SUPER_ADMIN", "Super Administrator");
+//                    Role admin = createRole("ADMIN", "Administrator");
+//                    Role manager = createRole("MANAGER", "Manager");
+//                    Role supervisor = createRole("SUPERVISOR", "Supervisor");
+//                    Role staff = createRole("STAFF", "Staff");
+//                    Role sale = createRole("SALE", "Sale");
+//                    Role viewer = createRole("VIEWER", "Viewer");
 
                     // Assign permissions to Super Admin Role (All permissions)
                     superAdmin.getPermissions().addAll(Set.of(
@@ -197,100 +198,100 @@ public class DataSeeder {
                             ,stockRead
                     ));
 
-                    // Assign permissions to Admin Role (All permissions)
-                    admin.getPermissions().addAll(Set.of(
-                            // User & Role & Permission permissions
-                            userRead, userCreate, userUpdate, userDelete,
-                            roleRead, roleCreate, roleUpdate, roleDelete,
-                            permissionRead, permissionCreate, permissionUpdate, permissionDelete,
-                            // Master data permissions
-                            categoryRead, categoryCreate, categoryUpdate, categoryDelete,
-                            subCategoryRead, subCategoryCreate, subCategoryUpdate, subCategoryDelete,
-                            productRead, productCreate, productUpdate, productDelete,
-                            unitRead, unitCreate, unitUpdate, unitDelete,
-                            supplierRead, supplierCreate, supplierUpdate, supplierDelete,
-                            sellerRead, sellerCreate, sellerUpdate, sellerDelete,
-                            storeRead, storeCreate, storeUpdate, storeDelete,
-                            customerRead, customerCreate, customerUpdate, customerDelete,
-                            // Transaction permissions
-                            purchaseRead, purchaseCreate, purchaseUpdate, purchaseDelete, purchaseApprove,
-                            saleRead, saleCreate, saleUpdate, saleDelete, saleApprove,
-                            transferRead, transferCreate, transferUpdate, transferDelete, transferApprove,
-                            adjustmentRead, adjustmentCreate, adjustmentUpdate, adjustmentDelete, adjustmentApprove,
-                            // Report permissions
-                            reportRead, reportExport , stockRead
-                    ));
-
-                    // Assign permissions to Manager Role
-                    manager.getPermissions().addAll(Set.of(
-                            // User permissions (read only)
-                            userRead,
-                            // Master data permissions
-                            categoryRead, categoryCreate, categoryUpdate,
-                            subCategoryRead, subCategoryCreate, subCategoryUpdate,
-                            productRead, productCreate, productUpdate,
-                            unitRead, unitCreate, unitUpdate,
-                            supplierRead, supplierCreate, supplierUpdate,
-                            sellerRead, sellerCreate, sellerUpdate,
-                            storeRead, storeCreate, storeUpdate,
-                            customerRead, customerCreate, customerUpdate,
-                            // Transaction permissions
-                            purchaseRead, purchaseCreate, purchaseUpdate, purchaseApprove,
-                            saleRead, saleCreate, saleUpdate, saleApprove,
-                            transferRead, transferCreate, transferUpdate, transferApprove,
-                            adjustmentRead, adjustmentCreate, adjustmentUpdate, adjustmentApprove,
-                            // Report permissions
-                            reportRead, reportExport , stockRead
-                    ));
-
-                    // Assign permissions to Supervisor Role
-                    supervisor.getPermissions().addAll(Set.of(
-                            // Master data permissions (read only)
-                            categoryRead, subCategoryRead, productRead, unitRead,
-                            supplierRead, sellerRead, storeRead, customerRead,
-                            // Transaction permissions
-                            purchaseRead, purchaseCreate, purchaseUpdate,
-                            saleRead, saleCreate, saleUpdate,
-                            transferRead, transferCreate, transferUpdate,
-                            adjustmentRead, adjustmentCreate, adjustmentUpdate,
-                            // Report permissions
-                            reportRead, reportExport
-                    ));
-
-                    // Assign permissions to Staff Role
-                    staff.getPermissions().addAll(Set.of(
-                            // Master data permissions (read only)
-                            categoryRead, subCategoryRead, productRead, unitRead,
-                            supplierRead, sellerRead, storeRead, customerRead,
-                            // Transaction permissions (create & read)
-                            purchaseRead, purchaseCreate,
-                            saleRead, saleCreate,
-                            transferRead, transferCreate,
-                            adjustmentRead, adjustmentCreate,
-                            // Report permissions (read only)
-                            reportRead
-                    ));
-
-                    // Assign permissions to Sale Role
-                    sale.getPermissions().addAll(Set.of(
-                            // Master data permissions (read only)
-                            categoryRead, productRead, storeRead, customerRead, customerCreate,
-                            // Transaction permissions (create & read)
-                            saleRead, saleCreate,
-                            // Report permissions (read only)
-                            reportRead
-                    ));
-
-                    // Assign permissions to Viewer Role (Read-only)
-                    viewer.getPermissions().addAll(Set.of(
-                            categoryRead, subCategoryRead, productRead, unitRead,
-                            supplierRead, sellerRead, storeRead, customerRead,
-                            purchaseRead, saleRead, transferRead, adjustmentRead,
-                            reportRead
-                    ));
+//                    // Assign permissions to Admin Role (All permissions)
+//                    admin.getPermissions().addAll(Set.of(
+//                            // User & Role & Permission permissions
+//                            userRead, userCreate, userUpdate, userDelete,
+//                            roleRead, roleCreate, roleUpdate, roleDelete,
+//                            permissionRead, permissionCreate, permissionUpdate, permissionDelete,
+//                            // Master data permissions
+//                            categoryRead, categoryCreate, categoryUpdate, categoryDelete,
+//                            subCategoryRead, subCategoryCreate, subCategoryUpdate, subCategoryDelete,
+//                            productRead, productCreate, productUpdate, productDelete,
+//                            unitRead, unitCreate, unitUpdate, unitDelete,
+//                            supplierRead, supplierCreate, supplierUpdate, supplierDelete,
+//                            sellerRead, sellerCreate, sellerUpdate, sellerDelete,
+//                            storeRead, storeCreate, storeUpdate, storeDelete,
+//                            customerRead, customerCreate, customerUpdate, customerDelete,
+//                            // Transaction permissions
+//                            purchaseRead, purchaseCreate, purchaseUpdate, purchaseDelete, purchaseApprove,
+//                            saleRead, saleCreate, saleUpdate, saleDelete, saleApprove,
+//                            transferRead, transferCreate, transferUpdate, transferDelete, transferApprove,
+//                            adjustmentRead, adjustmentCreate, adjustmentUpdate, adjustmentDelete, adjustmentApprove,
+//                            // Report permissions
+//                            reportRead, reportExport , stockRead
+//                    ));
+//
+//                    // Assign permissions to Manager Role
+//                    manager.getPermissions().addAll(Set.of(
+//                            // User permissions (read only)
+//                            userRead,
+//                            // Master data permissions
+//                            categoryRead, categoryCreate, categoryUpdate,
+//                            subCategoryRead, subCategoryCreate, subCategoryUpdate,
+//                            productRead, productCreate, productUpdate,
+//                            unitRead, unitCreate, unitUpdate,
+//                            supplierRead, supplierCreate, supplierUpdate,
+//                            sellerRead, sellerCreate, sellerUpdate,
+//                            storeRead, storeCreate, storeUpdate,
+//                            customerRead, customerCreate, customerUpdate,
+//                            // Transaction permissions
+//                            purchaseRead, purchaseCreate, purchaseUpdate, purchaseApprove,
+//                            saleRead, saleCreate, saleUpdate, saleApprove,
+//                            transferRead, transferCreate, transferUpdate, transferApprove,
+//                            adjustmentRead, adjustmentCreate, adjustmentUpdate, adjustmentApprove,
+//                            // Report permissions
+//                            reportRead, reportExport , stockRead
+//                    ));
+//
+//                    // Assign permissions to Supervisor Role
+//                    supervisor.getPermissions().addAll(Set.of(
+//                            // Master data permissions (read only)
+//                            categoryRead, subCategoryRead, productRead, unitRead,
+//                            supplierRead, sellerRead, storeRead, customerRead,
+//                            // Transaction permissions
+//                            purchaseRead, purchaseCreate, purchaseUpdate,
+//                            saleRead, saleCreate, saleUpdate,
+//                            transferRead, transferCreate, transferUpdate,
+//                            adjustmentRead, adjustmentCreate, adjustmentUpdate,
+//                            // Report permissions
+//                            reportRead, reportExport
+//                    ));
+//
+//                    // Assign permissions to Staff Role
+//                    staff.getPermissions().addAll(Set.of(
+//                            // Master data permissions (read only)
+//                            categoryRead, subCategoryRead, productRead, unitRead,
+//                            supplierRead, sellerRead, storeRead, customerRead,
+//                            // Transaction permissions (create & read)
+//                            purchaseRead, purchaseCreate,
+//                            saleRead, saleCreate,
+//                            transferRead, transferCreate,
+//                            adjustmentRead, adjustmentCreate,
+//                            // Report permissions (read only)
+//                            reportRead
+//                    ));
+//
+//                    // Assign permissions to Sale Role
+//                    sale.getPermissions().addAll(Set.of(
+//                            // Master data permissions (read only)
+//                            categoryRead, productRead, storeRead, customerRead, customerCreate,
+//                            // Transaction permissions (create & read)
+//                            saleRead, saleCreate,
+//                            // Report permissions (read only)
+//                            reportRead
+//                    ));
+//
+//                    // Assign permissions to Viewer Role (Read-only)
+//                    viewer.getPermissions().addAll(Set.of(
+//                            categoryRead, subCategoryRead, productRead, unitRead,
+//                            supplierRead, sellerRead, storeRead, customerRead,
+//                            purchaseRead, saleRead, transferRead, adjustmentRead,
+//                            reportRead
+//                    ));
 
                     // Save all roles
-                    roleRepository.saveAll(List.of(superAdmin, admin, manager, supervisor, staff, sale, viewer));
+                    roleRepository.saveAll(List.of(superAdmin));
                     log.info("Roles created successfully");
 
                     // Create admin user
@@ -356,7 +357,7 @@ public class DataSeeder {
         if (adminUser.getId() == null) {
             log.info("Creating admin user");
             adminUser.setUsername("admin");
-            adminUser.setEmail("admin@inventory.local");
+            adminUser.setEmail("namyou854@gmail.com");
             adminUser.setFirstName("System");
             adminUser.setLastName("Admin");
             adminUser.setPasswordHash(passwordEncoder.encode("Admin@123"));

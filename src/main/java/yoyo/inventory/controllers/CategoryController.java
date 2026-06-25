@@ -49,7 +49,7 @@ public class CategoryController {
                 .success(ErrorCode.SUCCESS)
                 .status(HttpStatus.OK)
                 .timestamp(LocalDateTime.now())
-                .message(Message.getById("Supplier",id))
+                .message(Message.getById("Category",id))
                 .payload(exitsId)
                 .build();
         return  ResponseEntity.ok(response);
@@ -83,7 +83,7 @@ public class CategoryController {
         return  ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('category:delete')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         categoryService.deleteCategory(id);
