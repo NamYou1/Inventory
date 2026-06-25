@@ -1,14 +1,14 @@
 version: "3.9"
 
 services:
-  postgres-local:
+  postgres-bbu-service-local:
     image: postgres:17
-    container_name: postgres
+    container_name: postgres-bbu-service-local
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: db_inventory
+      POSTGRES_PASSWORD: BBU@2026
+      POSTGRES_DB: dev_authentication_db
     ports:
       - "26030:5432"
     volumes:

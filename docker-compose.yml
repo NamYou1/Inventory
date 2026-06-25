@@ -1,76 +1,90 @@
 version: "3.9"
 
 services:
-  postgres:
+  postgres-inventory-service:
     image: postgres:16-alpine
-    container_name: inventory_db
+    container_name: postgres-inventory-service
     restart: always
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: BBU@2026
+      POSTGRES_DB: uat_inventory_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bbu-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d uat_inventory_db"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  rustfs:
+  rustfs-service:
     image: rustfs/rustfs:latest
-    container_name: rustfs_local
+    container_name: rustfs-service
     restart: always
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
-      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+      RUSTFS_ACCESS_KEY: admin
+      RUSTFS_SECRET_KEY: admin123
     volumes:
       - rustfs_data:/data
+    networks:
+      - bbu-network
     command: server /data --console-address ":9001"
 
-  app:
+  inventory-service:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: inventory_app
+    container_name: inventory-service
     restart: always
     ports:
       - "8080:8080"
-    environment:
-      DB_URL: ${DB_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-
-      JWT_SECRET_BASE64: ${JWT_SECRET_BASE64}
-      JWT_ACCESS_EXP_SECONDS: ${JWT_ACCESS_EXP_SECONDS}
-      JWT_REFRESH_EXP_SECONDS: ${JWT_REFRESH_EXP_SECONDS}
-
-      RUSTFS_ENDPOINT: ${RUSTFS_ENDPOINT}
-      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
-      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
-      RUSTFS_BUCKET: ${RUSTFS_BUCKET}
-      AWS_REGION: ${AWS_REGION}
     depends_on:
-      postgres:
+      postgres-inventory-service:
         condition: service_healthy
-      rustfs:
+      rustfs-service:
         condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://postgres-inventory-service:5432/uat_inventory_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: BBU@2026
+      
+      JWT_SECRET_BASE64: replace_with_your_base64_secret
+      JWT_ACCESS_EXP_SECONDS: 3600
+      JWT_REFRESH_EXP_SECONDS: 86400
+      
+      RUSTFS_ENDPOINT: http://rustfs-service:9000
+      RUSTFS_ACCESS_KEY: admin
+      RUSTFS_SECRET_KEY: admin123
+      RUSTFS_BUCKET: inventory-bucket
+      AWS_REGION: us-east-1
+      
+      SPRING_PROFILES_ACTIVE: dev
+    networks:
+      - bbu-network
 
-  nginx:
-    image: nginx:1.25-alpine
-    container_name: inventory_gateway
-    restart: always
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - app
+  # nginx-gateway-service:
+  #   image: nginx:1.25-alpine
+  #   container_name: nginx-gateway-service
+  #   restart: always
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #   depends_on:
+  #     - inventory-service
+  #   networks:
+  #     - bbu-network
+
+networks:
+  bbu-network:
+    driver: bridge
 
 volumes:
   postgres_data:

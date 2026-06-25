@@ -1,0 +1,105 @@
+server:
+  port: 26010
+
+spring:
+  application:
+    name: authentication-server
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+#  flyway:
+#    enabled: true
+#    schemas: public
+#    baseline-on-migrate: false
+#    locations: classpath:db/migration
+#    placeholders:
+#      defaultSchema: public
+#    rollback-locations: classpath:db/rollback
+#  cache:
+#    type: redis
+
+  data:
+    redis:
+      host: redis-server
+      port: 6379
+      timeout: 30000
+      user: default
+      password: BBU@2026
+      ssl:
+        enabled: false
+      repositories:
+        enabled: false
+
+otel:
+  exporter:
+    otlp:
+      endpoint: http://alloy.monitoring.svc.cluster.local:4317
+      protocol: grpc
+  logs:
+    exporter: none
+  metrics:
+    exporter: none
+  traces:
+    sampler:
+      probability: 1.0
+
+  service:
+    name: keycloak-authentication-server
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,refresh
+
+logging:
+  enable: true
+  includeRequest: true
+  includeRequestBody: true
+  maskLogKey: maskingKey001,maskingkey001,masking-type-002
+  ignoreDefaultMaskingLogKey: ignoreMaskingKey001,ignoreMasking-type-002
+  includeRequestHeader: true
+  maxRequestBody: 1000
+  ignoreAntMatches: /abc,/zte-ba/**,/hiding-log
+  includeResponse: true
+  includeResponseHeader: true
+  maskResponseHeaderKey: maskingKey001,maskingkey001,masking-type-002
+  includeResponseBody: true
+  maxResponseBody: 200
+
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId},%X{spanId}]"
+    console: "[%d] [%t] %-5level [${spring.application.name},%X{traceId},%X{spanId},%X{activityid}] %logger{36} - %msg%n"
+
+springdoc:
+  api-docs:
+    path: /openapi/v3/api-docs
+  packages-to-scan: com.cambofreelance.authenticationservice.controllers
+  paths-to-match: /**
+  swagger-ui:
+    path: /auth/openapi/swagger-ui.html
+
+storage:
+  redis:
+    key-response-code: response-code
+
+app-config:
+  otp-expired: 120
+  otp-limited-generate: 100
+  password-policy: 8
+
+applogger:
+  enabled: true
+  mode: PARTIAL
+
+authentication:
+  jwtExpiration: 300000
+  jwtRefreshExpiration: 86400000
+  jwtSecret: ebe8910a-08c0-11ed-861d-0242ac120002
+
