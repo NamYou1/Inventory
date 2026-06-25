@@ -55,7 +55,7 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: BBU@2026
       
-      JWT_SECRET_BASE64: replace_with_your_base64_secret
+      JWT_SECRET_BASE64: VGhpc0lzQVN0cm9uZ0RldmVsb3BtZW50S2V5VGhhdE11c3RCZUF0TGVhc3QzMkJ5dGVzTG9uZw==
       JWT_ACCESS_EXP_SECONDS: 3600
       JWT_REFRESH_EXP_SECONDS: 86400
       

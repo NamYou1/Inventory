@@ -1,17 +1,17 @@
 server:
-  port: 26010
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
-    name: authentication-server
+    name: inventory-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://localhost:5432/uat_inventory_db}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:postgres}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:BBU@2026}}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
 
 #  flyway:
 #    enabled: true
@@ -50,7 +50,7 @@ otel:
       probability: 1.0
 
   service:
-    name: keycloak-authentication-server
+    name: inventory-service
 
 management:
   endpoints:
@@ -79,11 +79,11 @@ logging:
 
 springdoc:
   api-docs:
-    path: /openapi/v3/api-docs
-  packages-to-scan: com.cambofreelance.authenticationservice.controllers
+    path: /v3/api-docs
+  packages-to-scan: yoyo.inventory.controllers
   paths-to-match: /**
   swagger-ui:
-    path: /auth/openapi/swagger-ui.html
+    path: /swagger-ui.html
 
 storage:
   redis:
